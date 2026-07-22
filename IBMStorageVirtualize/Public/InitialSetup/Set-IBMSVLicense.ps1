@@ -5,14 +5,6 @@ Updates license configuration and feature activation on an IBM Storage Virtualiz
 .DESCRIPTION
 The Set-IBMSVLicense cmdlet updates system license configuration.
 
-It maps to chlicense, activatefeature, and deactivatefeature commands depending on requested changes.
-
-The cmdlet is idempotent:
-- Only properties that differ from the current configuration are modified.
-- If no changes are required, no operation is performed.
-
-Supports -WhatIf and -Confirm for safe execution.
-
 .PARAMETER Flash
 Specifies the Flash license value.
 
@@ -37,34 +29,28 @@ Specifies the Cloud license value.
 
 .PARAMETER LicenseKey
 Specifies the license keys for feature activation.
-
 The provided list represents the desired final state:
 - New keys are activated.
 - Existing keys not in the list are deactivated.
 
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
-
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> Set-IBMSVLicense -Flash 50 -Virtualization 100
-
 Updates license configurations.
 
 .EXAMPLE
 PS> Set-IBMSVLicense -Compression 10
-
 Updates the Compression.
 
 .EXAMPLE
 PS> Set-IBMSVLicense -LicenseKey "KEY1","KEY2"
-
 Ensures only the specified license keys are active.
 
 .EXAMPLE
 PS> Set-IBMSVLicense -EasyTier 20 -Cloud 5 -WhatIf
-
 Shows what would happen without applying changes.
 
 .INPUTS
@@ -75,8 +61,7 @@ None.
 
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
-- Only modified properties are sent to the backend.
-- Fully supports -WhatIf and -Confirm.
+- Supports -WhatIf and -Confirm.
 
 .LINK
 https://www.ibm.com/docs/en/search/chlicense

@@ -77,7 +77,7 @@ function Write-IBMSVLog {
                     Move-Item -Path $logFile -Destination $archivePath -Force
 
                     $rotationNotice = "$(Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fff") [INFO ] PID=$PID TID=$([System.Threading.Thread]::CurrentThread.ManagedThreadId) [LogRotation] " +
-                                     "Previous log file reached size limit ($([math]::Round($logSizeMB, 2)) MB) and was archived as: $archiveName"
+                    "Previous log file reached size limit ($([math]::Round($logSizeMB, 2)) MB) and was archived as: $archiveName"
                     [System.IO.File]::AppendAllText(
                         $logFile,
                         $rotationNotice + [System.Environment]::NewLine
@@ -85,8 +85,8 @@ function Write-IBMSVLog {
 
                     if ($script:LoggerConfig.MaxArchiveFiles -gt 0) {
                         $archives = Get-ChildItem -Path $logDir -Filter "${logName}_*${logExt}" |
-                                    Sort-Object LastWriteTime -Descending |
-                                    Select-Object -Skip $script:LoggerConfig.MaxArchiveFiles
+                            Sort-Object LastWriteTime -Descending |
+                            Select-Object -Skip $script:LoggerConfig.MaxArchiveFiles
 
                         $archives | Remove-Item -Force -ErrorAction SilentlyContinue
                     }

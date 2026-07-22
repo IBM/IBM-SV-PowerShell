@@ -1,27 +1,17 @@
 <#
 .SYNOPSIS
-Modifies an existing volume in an IBM Storage Virtualize system.
+Modifies an existing volume on an IBM Storage Virtualize system.
 
 .DESCRIPTION
 The Set-IBMSVVolume cmdlet updates properties of an existing volume.
-
-It maps to chvolume, chvdisk, and related commands depending on system capabilities and requested changes.
-
-The cmdlet is idempotent:
-- Only properties that differ from the current configuration are modified.
-- If no changes are required, no operation is performed.
-
-Supports -WhatIf and -Confirm for safe execution.
 
 .PARAMETER Name
 Specifies the name or UID of the volume to modify.
 
 .PARAMETER NewName
 Specifies a new name for the volume.
-
-If both Name and NewName exist, the operation fails.
-
-If the specified Name does not exist but NewName exists, the cmdlet continues updating the NewName volume.
+If host with both Name and NewName exist, the operation fails.
+If the volume with specified Name does not exist but volume with NewName exists, the cmdlet continues updating the NewName volume.
 
 .PARAMETER Cache
 Specifies the cache mode for the volume.
@@ -38,13 +28,11 @@ Specifies the user-defined identifier (UDID) for the volume.
 
 .PARAMETER Warning
 Specifies the warning threshold for used capacity.
-
 This parameter is only valid for thin-provisioned or compressed volumes.
-
 The value may be specified as:
 - A percentage (for example: `80%`), or
-- An absolute capacity value, optionally used with `-Unit`
-  (for example: `500 -Unit gb`)
+- An absolute capacity value, optionally used with -Unit (for example: - Warning 500 -Unit gb)
+
 
 .PARAMETER Unit
 Specifies the unit for -Size or -Warning.
@@ -53,7 +41,6 @@ Valid values: b, kb, mb, gb, tb, pb.
 .PARAMETER AutoExpand
 Specifies whether automatic expansion is enabled.
 Valid values: on, off.
-
 Valid only for thin-provisioned or compressed volumes.
 
 .PARAMETER SyncRate
@@ -69,17 +56,14 @@ Valid values: latency, redundancy.
 
 .PARAMETER VolumeGroup
 Specifies the volume group for the volume.
-
 Mutually exclusive with -NoVolumeGroup.
 
 .PARAMETER NoVolumeGroup
 Specifies that the volume is removed from its volume group.
-
 Mutually exclusive with -VolumeGroup.
 
 .PARAMETER RetainBackupEnabled
 Specifies that cloud backup data is retained when removing the volume group.
-
 Requires -NoVolumeGroup.
 
 .PARAMETER CloudBackup
@@ -88,64 +72,52 @@ Valid values: enable, disable.
 
 .PARAMETER CloudAccountName
 Specifies the cloud account name.
-
 Required when -CloudBackup is enable.
 
 .PARAMETER BackupGrainsize
 Specifies the grain size for cloud backup.
 Valid values: 64, 256.
-
 Valid only when -CloudBackup is enable.
 
 .PARAMETER Size
 Specifies the new size of the volume.
-
 If the value is larger, the volume is expanded.
 If smaller, the volume is shrunk.
 
 .PARAMETER IOGrp
 Specifies one or more I/O groups for the volume.
-
 Existing I/O group access is replaced.
 
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
-
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> Set-IBMSVVolume -Name Vol1 -NewName Vol1_New
-
 Renames the volume.
 
 .EXAMPLE
 PS> Set-IBMSVVolume -Name Vol1 -Cache readwrite -RateIOPS 5000
-
 Updates cache and performance limits.
 
 .EXAMPLE
 PS> Set-IBMSVVolume -Name ThinVol1 -Warning 80% -AutoExpand on
-
 Updates warning threshold and auto-expand.
 
 .EXAMPLE
 PS> Set-IBMSVVolume -Name Vol1 -Size 2 -Unit tb
-
 Resizes the volume.
 
 .EXAMPLE
 PS> Set-IBMSVVolume -Name Vol1 -IOGrp 0,1
-
 Updates I/O group access.
 
 .EXAMPLE
 PS> Set-IBMSVVolume -Name Vol1 -CloudBackup enable -CloudAccountName CloudAcct1
-
 Enables cloud backup.
 
 .INPUTS
 System.String
-
 You can pipe objects with a Name property to this cmdlet.
 
 .OUTPUTS
@@ -153,11 +125,8 @@ None.
 
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
-- If the specified volume does not exist, a terminating error is thrown.
-- If both Name and NewName exist, the operation fails.
-- Only modified properties are sent to the backend.
-- Performs validation of parameter combinations before execution.
-- Fully supports -WhatIf and -Confirm.
+- Multiple parameter update is non-atomic.
+- Supports -WhatIf and -Confirm.
 
 .LINK
 https://www.ibm.com/docs/en/search/chvolume

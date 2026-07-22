@@ -1,54 +1,39 @@
 <#
 .SYNOPSIS
-Removes an existing volume-to-host or host cluster mapping in an IBM Storage Virtualize system.
+Removes an existing volume-to-host mapping from an IBM Storage Virtualize system.
 
 .DESCRIPTION
-The Remove-IBMSVVolToHostMap cmdlet deletes a mapping between a volume and a host or host cluster.
-
-It maps to rmvdiskhostmap, rmvolumehostclustermap, and related commands based on the target.
-
-The cmdlet is idempotent:
-- If the specified mapping does not exist, no action is performed.
-
-Supports -WhatIf and -Confirm for safe execution.
-Due to the destructive nature, confirmation is required by default.
+The Remove-IBMSVVolToHostMap cmdlet deletes a volume-to-host mapping from the system.
 
 .PARAMETER Volume
 Specifies the name or UID of the volume to unmap.
 
 .PARAMETER HostName
 Specifies the host name for the mapping.
-
 Mutually exclusive with -HostCluster.
 
 .PARAMETER HostCluster
 Specifies the host cluster name for the mapping.
-
 Mutually exclusive with -HostName.
 
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
-
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> Remove-IBMSVVolToHostMap -Volume volume0 -HostName host4test
-
 Removes the mapping to a host.
 
 .EXAMPLE
 PS> Remove-IBMSVVolToHostMap -Volume volume0 -HostCluster clusterA
-
 Removes the mapping to a host cluster.
 
 .EXAMPLE
 PS> Remove-IBMSVVolToHostMap -Volume volume1 -HostName hostB -WhatIf
-
-Shows what would happen without removing the mapping.
+Shows what would happen if the mapping were removed.
 
 .INPUTS
 System.String
-
 You can pipe objects with Volume, HostName, or HostCluster properties to this cmdlet.
 
 .OUTPUTS
@@ -57,8 +42,7 @@ None.
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
 - This is a destructive operation and cannot be undone.
-- If the mapping does not exist, the operation completes silently.
-- Fully supports -WhatIf and -Confirm.
+- Supports -WhatIf and -Confirm.
 
 .LINK
 https://www.ibm.com/docs/en/search/rmvdiskhostmap

@@ -18,7 +18,7 @@ function Get-IBMSVVersion {
     }
 
     if (-not $session.SVCVersion) {
-        $result = Invoke-IBMSVRestRequest -Cluster $session.Cluster -Cmd "lssystem" | Out-Null
+        $result = Invoke-IBMSVRestRequest -Cluster $session.Cluster -Cmd "lssystem"
         if ($result.err) { return $result }
     }
 

@@ -5,14 +5,6 @@ Configures proxy and Cloud Callhome settings on an IBM Storage Virtualize system
 .DESCRIPTION
 The Set-IBMSVCloudCallhome cmdlet manages proxy configuration and Cloud Callhome (Storage Insights) settings.
 
-It maps to mkproxy, chproxy, rmproxy, chcloudcallhome and related commands depending on system capabilities and requested changes.
-
-The cmdlet is idempotent:
-- Only properties that differ from the current configuration are modified.
-- If no changes are required, no operation is performed.
-
-Supports -WhatIf and -Confirm for safe execution.
-
 .PARAMETER ProxyUrl
 Specifies the proxy server URL.
 
@@ -21,12 +13,10 @@ Specifies the proxy server port.
 
 .PARAMETER ProxyUsername
 Specifies the proxy authentication username.
-
 Cannot be used with -RemoveProxyCredentials.
 
 .PARAMETER ProxyPassword
 Specifies the proxy authentication password.
-
 Cannot be used with -RemoveProxyCredentials.
 
 .PARAMETER ProxySslCertificatePath
@@ -34,22 +24,18 @@ Specifies the proxy SSL certificate path.
 
 .PARAMETER RemoveProxyCredentials
 Removes the configured proxy username and password.
-
 Cannot be used with -ProxyUsername or -ProxyPassword.
 
 .PARAMETER RemoveProxySslCertificatePath
 Removes the configured proxy SSL certificate path.
-
 Cannot be used with -ProxySslCertificatePath.
 
 .PARAMETER RemoveProxy
 Removes the proxy configuration.
-
 Cannot be used with other proxy parameters.
 
 .PARAMETER EnableCallhome
 Enables Cloud Callhome.
-
 If already enabled, a connection test is triggered.
 
 .PARAMETER DisableCallhome
@@ -63,7 +49,6 @@ Clears the tenant ID.
 
 .PARAMETER SIAPIKey
 Specifies the Storage Insights API key.
-
 The tenant ID must be configured before setting the API key.
 
 .PARAMETER ClearAPIKey
@@ -71,27 +56,22 @@ Clears the API key.
 
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
-
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> Set-IBMSVCloudCallhome -ProxyUrl http://proxy -ProxyPort 8080
-
 Configures proxy.
 
 .EXAMPLE
 PS> Set-IBMSVCloudCallhome -EnableCallhome
-
 Enables Cloud Callhome.
 
 .EXAMPLE
 PS> Set-IBMSVCloudCallhome -SITenantID t1 -SIAPIKey key
-
 Configures the Storage Insights tenant ID and API key for Cloud Callhome.
 
 .EXAMPLE
 PS> Set-IBMSVCloudCallhome -ProxyUrl http://proxy -ProxyPort 8080 -SITenantID t1 -SIAPIKey key -EnableCallhome
-
 Configures proxy, storage Insights and enables Cloud Callhome.
 
 .INPUTS
@@ -99,14 +79,11 @@ None.
 
 .OUTPUTS
 System.Object
-
 Returns proxy and callhome configuration.
 
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
-- Performs validation of parameter combinations before execution.
-- Only modified properties are sent to the backend.
-- Fully supports -WhatIf and -Confirm.
+- Supports -WhatIf and -Confirm.
 
 .LINK
 https://www.ibm.com/docs/en/search/mkproxy

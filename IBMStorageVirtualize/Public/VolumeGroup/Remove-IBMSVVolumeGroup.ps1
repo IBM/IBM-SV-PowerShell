@@ -5,45 +5,30 @@ Removes an existing volumegroup from an IBM Storage Virtualize system.
 .DESCRIPTION
 The Remove-IBMSVVolumeGroup cmdlet deletes a volumegroup from the system.
 
-It maps to the rmvolumegroup command.
-
-The cmdlet is idempotent:
-- If the volumegroup does not exist, no action is performed.
-
-Supports -WhatIf and -Confirm for safe execution.
-Due to the destructive nature, confirmation is required by default.
-
 .PARAMETER Name
-Specifies the name of the volumegroup to remove.
+Specifies the name of the volume group to remove.
 
 .PARAMETER EvictVolumes
-Specifies that all volumes are removed from the volumegroup before deletion.
-
-This removes volumes from the group but does not delete the volumes.
+Specifies that all volumes are removed from the volume group before deletion.
 
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
-
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> Remove-IBMSVVolumeGroup -Name vg1
-
-Removes the volumegroup.
+Removes the volume group.
 
 .EXAMPLE
 PS> Remove-IBMSVVolumeGroup -Name vg1 -EvictVolumes
-
-Removes the volumegroup after evicting all volumes.
+Removes the volume group after evicting all volumes.
 
 .EXAMPLE
-PS> Get-IBMSVVolumeGroup | Where-Object { $_.name -like 'test*' } | Remove-IBMSVVolumeGroup
-
-Removes volumegroups using pipeline input.
+PS> Remove-IBMSVVolumeGroup -Name vg1 -WhatIf
+Shows what would happen if the volume group were removed.
 
 .INPUTS
 System.String
-
 You can pipe objects with a Name property to this cmdlet.
 
 .OUTPUTS
@@ -52,8 +37,7 @@ None.
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
 - This is a destructive operation and cannot be undone.
-- If the volumegroup does not exist, the operation completes silently.
-- Fully supports -WhatIf and -Confirm.
+- Supports -WhatIf and -Confirm.
 
 .LINK
 https://www.ibm.com/docs/en/search/rmvolumegroup

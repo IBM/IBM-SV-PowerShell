@@ -6,7 +6,7 @@
                 return [pscustomobject]@{ name='pwsh_vg0'; id='0' }
             }
             elseif ($Cmd -eq 'rmvolumegroup') {
-                return @{}
+                return $null
             }
         } -ModuleName IBMStorageVirtualize
     }

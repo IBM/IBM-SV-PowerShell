@@ -18,7 +18,7 @@
                 return @()
             }
             if ($Cmd -eq 'chlicense') {
-                return [pscustomobject]@{ message = 'License updated successfully' }
+                return $null
             }
             if ($Cmd -eq 'activatefeature') {
                 return [pscustomobject]@{ message = 'Feature activated successfully' }
@@ -90,7 +90,7 @@
                     return [pscustomobject]@{ product_name='IBM Storwize V7000'}
                 }
                 if ($Cmd -eq 'chlicense') {
-                    return [pscustomobject]@{ message = 'License updated successfully' }
+                    return $null
                 }
             } -ModuleName IBMStorageVirtualize
 
@@ -258,7 +258,7 @@
                     )
                 }
                 if ($Cmd -eq 'chlicense') {
-                    return [pscustomobject]@{ message = 'License updated successfully' }
+                    return $null
                 }
                 if ($Cmd -eq 'deactivatefeature') {
                     return [pscustomobject]@{ message = 'Feature deactivated successfully' }

@@ -6,7 +6,7 @@
                 return [pscustomobject]@{ name = 'pwsh_pool'; id = '0'; status = 'online' }
             }
             if ($Cmd -eq 'rmmdiskgrp') {
-                return [pscustomobject]@{ message = 'Pool removed successfully' }
+                return $null
             }
         } -ModuleName IBMStorageVirtualize
     }

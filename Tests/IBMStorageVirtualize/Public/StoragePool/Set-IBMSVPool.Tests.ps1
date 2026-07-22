@@ -18,7 +18,7 @@
                 return $null
             }
             if ($Cmd -eq 'chmdiskgrp') {
-                return [pscustomobject]@{ message = 'Pool updated successfully' }
+                return $null
             }
             if ($Cmd -eq 'lspartnership') {
                 return [pscustomobject]@{
@@ -106,7 +106,7 @@
                 return [pscustomobject]@{ name = 'pwsh_pool1'; id = '1'; easy_tier = 'auto' }
             }
             if ($Cmd -eq 'chmdiskgrp') {
-                return [pscustomobject]@{ message = 'Pool updated successfully' }
+                return $null
             }
         } -ModuleName IBMStorageVirtualize
 
@@ -149,7 +149,7 @@
                 return [pscustomobject]@{ name = 'pwsh_pool0'; owner_name = 'pwsh_og0' }
             }
             if ($Cmd -eq 'chmdiskgrp') {
-                return [pscustomobject]@{ message = 'Pool updated successfully' }
+                return $null
             }
         } -ModuleName IBMStorageVirtualize
 

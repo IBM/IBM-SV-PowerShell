@@ -6,6 +6,7 @@ $Script:LoggerConfig = @{
     MaxLogSizeMB    = 10
     MaxArchiveFiles = 5
 }
+Set-Variable -Name DefaultSshPort -Value 22 -Scope Script -Option Constant
 
 $PublicFunctions = @()
 
@@ -23,4 +24,10 @@ if (Test-Path $PublicPath) {
         $PublicFunctions += $_.BaseName
     }
 }
+
+$ExecutionContext.SessionState.Module.OnRemove = {
+    $Script:sessions = @{}
+    $Script:primarysession = $null
+}
+
 Export-ModuleMember -Function $PublicFunctions

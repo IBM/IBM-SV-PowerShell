@@ -6,7 +6,7 @@
                 return [pscustomobject]@{ name='pwsh_host'; id='0' }
             }
             if ($Cmd -eq 'rmhost') {
-                return @{}
+                return $null
             }
         } -ModuleName IBMStorageVirtualize
     }

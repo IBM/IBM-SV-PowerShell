@@ -11,7 +11,18 @@ Designed for both interactive use and automation scenarios, the toolkit supports
 
 ## Requirements
 
+### Core Requirements
+
 - **PowerShell**: Version 5.1 or later
+
+### Optional Requirements
+
+- **Posh-SSH Module**: Required only for SSH-based operations
+  - Install: `Install-Module -Name Posh-SSH -Scope CurrentUser`
+
+- **SecretManagement Module**: Required only for secret-based authentication
+  - Install: `Install-Module Microsoft.PowerShell.SecretManagement -Scope CurrentUser`
+  - Enables secure credential storage and automatic token refresh
 
 ## Installation
 
@@ -63,6 +74,9 @@ New-IBMSVVolume -Name "TestVol01" -Size 100 -Unit gb -Pool "Pool1"
 # Get information about specific volume
 Get-IBMSVVolume -ObjectName "TestVol01"
 
+# Idempotent
+If an object with the specified name already exists, the existing object is returned.
+
 # Disconnect session
 Disconnect-IBMStorageVirtualize
 ```
@@ -73,7 +87,7 @@ The toolkit supports three authentication modes:
 
 ### 1. Standard Credential Authentication (Default)
 
-Credentials are used only for authentication and are NOT stored in session. When the token expires, you must reconnect.
+Credentials are used for authentication. The authentication token is stored in the session, but credentials are NOT stored. When the token expires, you must reconnect.
 
 ```powershell
 $cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Username, $(ConvertTo-SecureString -Force -AsPlainText $Password)
@@ -82,7 +96,7 @@ Connect-IBMStorageVirtualize -Cluster "1.1.1.1" -Credential $cred
 
 ### 2. Credential Caching
 
-Credentials are stored in memory for automatic token refresh.
+Credentials are stored in memory for automatic token refresh. When the authentication token expires, the toolkit automatically refreshes it using the cached credentials.
 
 ```powershell
 $cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Username, $(ConvertTo-SecureString -Force -AsPlainText $Password)
@@ -130,7 +144,31 @@ Set-Secret -Name "IBMSVCluster1" -Secret $cred -Vault "LocalStore"
 Connect-IBMStorageVirtualize -Cluster "1.1.1.1" -SecretName "IBMSVCluster1" -VaultName "LocalStore"
 ```
 
-### Managing Multiple Clusters
+## Internal SSH Operations (On-Demand)
+
+Some cmdlets require direct CLI access over SSH (for example, to securely transfer files to the system). For these operations, the toolkit establishes an SSH connection only when needed and automatically closes the session when the operation completes.
+
+### Requirements
+
+```powershell
+# Install Posh-SSH module
+Install-Module -Name Posh-SSH -Scope CurrentUser
+```
+
+### SSH Host Key Management
+By default, the toolkit automatically accepts and stores a server's SSH host key the first time you connect.
+
+If the SSH host key changes (for example, after a system reinstall or replacement), the connection will fail because the stored host key no longer matches the server.
+
+To automatically remove the old host key and accept the new one, reconnect using the `-AutoAddHostKey` parameter:
+
+```powershell
+Connect-IBMStorageVirtualize -Cluster "1.1.1.1" -SecretName "IBMSVCluster1" -AutoAddHostKey
+```
+
+Without -AutoAddHostKey, you must manually remove the outdated host key from your Posh-SSH known hosts file before reconnecting.
+
+## Managing Multiple Clusters
 
 > [!NOTE]
 > - The `-Primary` parameter designates the session as the default context for subsequent cmdlet execution.

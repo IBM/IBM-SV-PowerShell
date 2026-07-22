@@ -1,82 +1,58 @@
 <#
 .SYNOPSIS
-Modifies an existing volumegroup in an IBM Storage Virtualize system.
+Modifies an existing volumegroup on an IBM Storage Virtualize system.
 
 .DESCRIPTION
 The Set-IBMSVVolumeGroup cmdlet updates properties of an existing volumegroup.
-
-It maps to chvolumegroup and related commands based on system capabilities and requested changes.
-
-Some parameter updates are applied in multiple operations when required to satisfy
-mutual exclusivity constraints.
-
-The cmdlet is idempotent:
-- Only properties that differ from the current configuration are modified.
-- If no changes are required, no operation is performed.
-
-Supports -WhatIf and -Confirm for safe execution.
 
 .PARAMETER Name
 Specifies the name of the volumegroup to modify.
 
 .PARAMETER NewName
 Specifies a new name for the volumegroup.
-
 If both Name and NewName exist, the operation fails.
-
 If the specified Name does not exist but NewName exists, the cmdlet continues updating the NewName volumegroup.
 
 .PARAMETER OwnershipGroup
 Specifies the ownership group for the volumegroup.
-
 Mutually exclusive with -NoOwnershipGroup, -SafeguardedPolicy, and -SnapshotPolicy.
 
 .PARAMETER NoOwnershipGroup
 Specifies that the ownership group is removed.
-
 Mutually exclusive with -OwnershipGroup.
 
 .PARAMETER SafeguardedPolicy
 Specifies the safeguarded policy for the volumegroup.
-
 Mutually exclusive with -NoSafeguardedPolicy, -SnapshotPolicy, and -NoSnapshotPolicy.
 
 .PARAMETER PolicyStartTime
 Specifies the policy start time.
-
 Requires -SafeguardedPolicy or -SnapshotPolicy.
 
 .PARAMETER NoSafeguardedPolicy
 Specifies that the safeguarded policy is removed.
-
 Mutually exclusive with -SafeguardedPolicy, -SnapshotPolicy, and -NoSnapshotPolicy.
 
 .PARAMETER SnapshotPolicy
 Specifies the snapshot policy for the volumegroup.
-
 Mutually exclusive with -NoSnapshotPolicy and -SafeguardedPolicy.
 
 .PARAMETER Safeguarded
 Specifies that the volumegroup is safeguarded.
-
 Valid only when -SnapshotPolicy is specified.
 
 .PARAMETER NoSnapshotPolicy
 Specifies that the snapshot policy is removed.
-
 Mutually exclusive with -SnapshotPolicy and -SafeguardedPolicy.
 
 .PARAMETER ReplicationPolicy
 Specifies the replication policy for the volumegroup.
-
 Mutually exclusive with -NoReplicationPolicy and -NoDRReplication.
 
 .PARAMETER NoDRReplication
 Specifies that DR replication is disabled.
-
 On systems running version 8.7.1.0 or later, this maps to the nodrreplication option of the chvolumegroup command.
 On earlier versions, the cmdlet uses the noreplicationpolicy option to achieve the same behavior.
-
 Mutually exclusive with -ReplicationPolicy.
 
 .PARAMETER IgnoreUserFCMaps
@@ -88,7 +64,6 @@ Specifies that backup retention is preserved when removing snapshot policy.
 
 .PARAMETER DraftPartition
 Specifies the draft partition for the volumegroup.
-
 Mutually exclusive with -ReplicationPolicy.
 
 .PARAMETER SnapshotPolicySuspended
@@ -97,32 +72,26 @@ Valid values: yes, no.
 
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
-
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> Set-IBMSVVolumeGroup -Name VG1 -NewName VG1_New -OwnershipGroup Group1
-
 Renames the volumegroup and updates ownership.
 
 .EXAMPLE
 PS> Set-IBMSVVolumeGroup -Name VG2 -SnapshotPolicy Snap1 -PolicyStartTime "22:00"
-
 Applies a snapshot policy.
 
 .EXAMPLE
 PS> Set-IBMSVVolumeGroup -Name VG3 -NoSafeguardedPolicy -RetainBackupEnabled
-
 Removes safeguarded policy while retaining backup.
 
 .EXAMPLE
 PS> Set-IBMSVVolumeGroup -Name VG4 -DraftPartition PartA -ReplicationPolicy Rep1
-
 Updates partition and replication policy.
 
 .INPUTS
 System.String
-
 You can pipe objects with a Name property to this cmdlet.
 
 .OUTPUTS
@@ -130,12 +99,8 @@ None.
 
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
-- If the specified volumegroup does not exist, a terminating error is thrown.
-- If both Name and NewName exist, the operation fails.
-- Only modified properties are sent to the backend.
-- Performs validation of parameter combinations before execution.
-- Some updates are applied in multiple steps to satisfy mutual exclusivity constraints.
-- Fully supports -WhatIf and -Confirm.
+- Multiple parameter update is non-atomic.
+- Supports -WhatIf and -Confirm.
 
 .LINK
 https://www.ibm.com/docs/en/search/chvolumegroup

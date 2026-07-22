@@ -5,55 +5,39 @@ Modifies an existing DNS server.
 .DESCRIPTION
 The Set-IBMSVDNSServer cmdlet updates an existing DNS server.
 
-It maps to the chdnsserver command.
-
-The cmdlet is idempotent:
-- Only properties that differ from the current configuration are modified.
-- If no changes are required, no operation is performed.
-
-Supports -WhatIf and -Confirm for safe execution.
-
 .PARAMETER Name
 Specifies the name of the DNS server to update.
 
 .PARAMETER NewName
 Specifies a new name for the DNS server.
-
-If both Name and NewName exist, the operation fails.
-
-If the specified Name does not exist but NewName exists, the cmdlet continues updating the NewName DNS server.
+If DNSServer with both Name and NewName exist, the operation fails.
+If DNSServer with specified Name does not exist but DNSServer with NewName exists, the cmdlet continues updating the NewName DNS server.
 
 .PARAMETER IpAddress
 Specifies the IP address for the DNS server.
 
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
-
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> Set-IBMSVDNSServer -Name dns1 -NewName dns_primary
-
 Renames the DNS server.
 
 .EXAMPLE
 PS> Set-IBMSVDNSServer -Name dns1 -IpAddress 1.1.1.1
-
 Updates the IP address.
 
 .EXAMPLE
 PS> Set-IBMSVDNSServer -Name dns1 -NewName dns1_new -IpAddress 8.8.8.8
-
 Updates both name and IP address.
 
 .EXAMPLE
 PS> Set-IBMSVDNSServer -Name dns1 -WhatIf
-
 Shows what would happen without modifying the DNS server.
 
 .INPUTS
 System.String
-
 You can pipe objects with a Name property to this cmdlet.
 
 .OUTPUTS
@@ -61,10 +45,7 @@ None.
 
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
-- If the specified DNS server does not exist, a terminating error is thrown.
-- If both Name and NewName exist, the operation fails.
-- Only modified properties are sent to the backend.
-- Fully supports -WhatIf and -Confirm.
+- Supports -WhatIf and -Confirm.
 
 .LINK
 https://www.ibm.com/docs/en/search/chdnsserver
