@@ -5,14 +5,6 @@ Modifies system-level configuration settings on an IBM Storage Virtualize system
 .DESCRIPTION
 The Set-IBMSVSystemProperty cmdlet updates system-wide configuration.
 
-It maps to chsystem, settimezone, and setsystemtime commands depending on requested changes.
-
-The cmdlet is idempotent:
-- Only properties that differ from the current configuration are modified.
-- If no changes are required, no operation is performed.
-
-Supports -WhatIf and -Confirm for safe execution.
-
 .PARAMETER Name
 Specifies a new name for the system.
 
@@ -33,7 +25,6 @@ Specifies the Global Mirror maximum host delay.
 
 .PARAMETER NtpIp
 Specifies the NTP server IPv4 address.
-
 This parameter is mutually exclusive with -Time.
 
 .PARAMETER IsnsIp
@@ -44,12 +35,10 @@ Specifies the replication bandwidth limit.
 
 .PARAMETER ChapSecret
 Specifies the iSCSI CHAP secret.
-
 This parameter is mutually exclusive with -NoChapSecret.
 
 .PARAMETER NoChapSecret
 Removes the configured iSCSI CHAP secret.
-
 This parameter is mutually exclusive with -ChapSecret.
 
 .PARAMETER Layer
@@ -151,32 +140,26 @@ Specifies the system time zone by ID or name.
 
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
-
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> Set-IBMSVSystemProperty -Name Cluster_1.1.1.1
-
 Updates the system name.
 
 .EXAMPLE
 PS> Set-IBMSVSystemProperty -NtpIp 192.168.1.10
-
 Configures the NTP server.
 
 .EXAMPLE
 PS> Set-IBMSVSystemProperty -Time 040509142003
-
 Sets the system time manually.
 
 .EXAMPLE
 PS> Set-IBMSVSystemProperty -EnhancedCallHome on -CensorCallHome on
-
 Enables Enhanced Call Home and censors sensitive data.
 
 .EXAMPLE
 PS> Set-IBMSVSystemProperty -QuorumMode preferred -QuorumSite SiteA
-
 Configures quorum mode and assigns a quorum site.
 
 .INPUTS
@@ -187,9 +170,7 @@ None.
 
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
-- Only modified properties are sent to the backend.
-- Some updates are applied in multiple steps to satisfy mutual exclusivity constraints.
-- Fully supports -WhatIf and -Confirm.
+- Supports -WhatIf and -Confirm.
 
 .LINK
 https://www.ibm.com/docs/en/search/chsystem

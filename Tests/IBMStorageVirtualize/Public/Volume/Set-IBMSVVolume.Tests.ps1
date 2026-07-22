@@ -35,7 +35,7 @@
                 )
             }
 
-            return @{}
+            return $null
         } -ModuleName IBMStorageVirtualize
 
         Mock Get-IBMSVVersion { return "9.1.0.0" } -ModuleName IBMStorageVirtualize

@@ -5,14 +5,6 @@ Removes an existing volume from an IBM Storage Virtualize system.
 .DESCRIPTION
 The Remove-IBMSVVolume cmdlet deletes a volume from the system.
 
-It maps to the rmvolume command.
-
-The cmdlet is idempotent:
-- If the volume does not exist, no action is performed.
-
-Supports -WhatIf and -Confirm for safe execution.
-Due to the destructive nature, confirmation is required by default.
-
 .PARAMETER Name
 Specifies the name or UID of the volume to remove.
 
@@ -33,32 +25,26 @@ Specifies that any active backup operations are canceled before deletion.
 
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
-
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> Remove-IBMSVVolume -Name Vol1
-
 Removes the volume.
 
 .EXAMPLE
 PS> Remove-IBMSVVolume -Name Vol1 -RemoveHostMappings -RemoveFCMappings
-
 Removes the volume and associated mappings.
 
 .EXAMPLE
 PS> Remove-IBMSVVolume -Name Vol1 -RemoveRCRelationships -DiscardImage
-
 Removes the volume after cleaning up relationships.
 
 .EXAMPLE
 PS> Remove-IBMSVVolume -Name Vol1 -WhatIf
-
 Shows what would happen if the volume were removed.
 
 .INPUTS
 System.String
-
 You can pipe objects with a Name property to this cmdlet.
 
 .OUTPUTS
@@ -67,8 +53,7 @@ None.
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
 - This is a destructive operation and cannot be undone.
-- If the volume does not exist, the operation completes silently.
-- Fully supports -WhatIf and -Confirm.
+- Supports -WhatIf and -Confirm.
 
 .LINK
 https://www.ibm.com/docs/en/search/rmvolume

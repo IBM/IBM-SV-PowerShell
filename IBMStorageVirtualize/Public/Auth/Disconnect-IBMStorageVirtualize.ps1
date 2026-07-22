@@ -33,8 +33,7 @@ None.
 None.
 
 .NOTES
-- Removes only locally stored session data.
-- No API call is made to the storage system.
+- Removes locally stored session data.
 - If the session does not exist, no error is thrown.
 - Use Get-IBMSVSession to view active sessions.
 - Use Connect-IBMStorageVirtualize to establish new sessions.
@@ -56,10 +55,10 @@ function Disconnect-IBMStorageVirtualize {
                     $script:primarysession = $null
                 }
 
-                Write-IBMSVLog -Level INFO -Message "REST session for cluster '$Cluster' removed."
+                Write-IBMSVLog -Level INFO -Message "Session for cluster '$Cluster' removed."
             }
             else {
-                Write-IBMSVLog -Level INFO -Message "No REST session existed for cluster '$Cluster'."
+                Write-IBMSVLog -Level INFO -Message "No active sessions found for '$Cluster'."
             }
         }
     }
@@ -68,11 +67,10 @@ function Disconnect-IBMStorageVirtualize {
             if ($script:sessions -and $script:sessions.Count -gt 0) {
                 $script:sessions.Clear()
                 $script:primarysession = $null
-
-                Write-IBMSVLog -Level INFO -Message "All REST sessions have been removed."
+                Write-IBMSVLog -Level INFO -Message "Disconnected all active sessions."
             }
             else {
-                Write-IBMSVLog -Level INFO -Message "No active REST sessions found."
+                Write-IBMSVLog -Level INFO -Message "No active sessions found."
             }
         }
     }

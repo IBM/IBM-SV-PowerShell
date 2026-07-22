@@ -13,6 +13,7 @@ BeforeAll {
     }
 
     Mock Invoke-IBMSVRestRequest {} -ModuleName IBMStorageVirtualize
+    Mock Invoke-IBMSVPluginRegistration {} -ModuleName IBMStorageVirtualize
 }
 
 Describe "Connect-IBMStorageVirtualize" {
@@ -28,6 +29,11 @@ Describe "Connect-IBMStorageVirtualize" {
                         ValidateCerts = $false
                         Primary = $true
                         SVCVersion = $null
+                        Token = "abc123"
+                        AutoAddHostKey = $false
+                        SecretName = $null
+                        VaultName = $null
+                        Username = $null
                     }
                     "1.1.1.12" = @{
                         Cluster = "1.1.1.12"
@@ -36,6 +42,12 @@ Describe "Connect-IBMStorageVirtualize" {
                         ValidateCerts = $false
                         Primary = $false
                         SVCVersion = $null
+                        Token = "xyz789"
+                        LastRestAuthTime = Get-Date
+                        AutoAddHostKey = $false
+                        SecretName = $null
+                        VaultName = $null
+                        Username = $null
                     }
                 }
                 $script:primarysession = "1.1.1.11"
@@ -45,11 +57,14 @@ Describe "Connect-IBMStorageVirtualize" {
         }
 
         It "Should throw error when attempting to set different cluster as primary while primary already exists" {
-            { Connect-IBMStorageVirtualize -Cluster "1.1.1.13" -Credential $script:pwsh_cred -Primary } | Should -Throw "Primary session already set to 1.1.1.11. Only one primary session allowed."
-        }
+            InModuleScope IBMStorageVirtualize {
+                $script:sessions = @{}
+                $script:primarysession = $null
+            }
+            Mock Invoke-RestMethod { return @{ token = "abc123" } } -ModuleName IBMStorageVirtualize
 
-        It "Should throw error when attempting to mark existing non-primary cluster as primary while different primary exists" {
-            { Connect-IBMStorageVirtualize -Cluster "1.1.1.12" -Credential $script:pwsh_cred -Primary } | Should -Throw "Primary session already set to 1.1.1.11. Only one primary session allowed."
+            Connect-IBMStorageVirtualize -Cluster "1.1.1.11" -Credential $script:pwsh_cred -Primary
+            { Connect-IBMStorageVirtualize -Cluster "1.1.1.13" -Credential $script:pwsh_cred -Primary } | Should -Throw "'1.1.1.11' is currently set as primary cluster. Please disconnect primary session before setting '1.1.1.13' as a primary cluster."
         }
 
         It "Should throw error when authentication fails" {
@@ -60,6 +75,15 @@ Describe "Connect-IBMStorageVirtualize" {
             Mock Invoke-RestMethod { throw "Error" } -ModuleName IBMStorageVirtualize
 
             { Connect-IBMStorageVirtualize -Cluster "1.1.1.11" -Credential $script:pwsh_cred } | Should -Throw
+        }
+
+        It "Should throw error when neither Credential, SecretName is provided" {
+            InModuleScope IBMStorageVirtualize {
+                $script:sessions = @{}
+                $script:primarysession = $null
+            }
+
+            { Connect-IBMStorageVirtualize -Cluster "1.1.1.11" } | Should -Throw "Either -Credential or -SecretName must be specified."
         }
     }
 
@@ -76,33 +100,36 @@ Describe "Connect-IBMStorageVirtualize" {
             Connect-IBMStorageVirtualize -Cluster "1.1.1.11" -Credential $script:pwsh_cred
 
             $result = Get-IBMSVSession -Cluster "1.1.1.11"
-            $result.Cluster       | Should -Be "1.1.1.11"
-            $result.Domain        | Should -BeNullOrEmpty
-            $result.Primary       | Should -BeFalse
-            $result.ValidateCerts | Should -BeFalse
-            $result.AuthType      | Should -Be "Credential (Not Cached)"
+            $result.Cluster           | Should -Be "1.1.1.11"
+            $result.Domain            | Should -BeNullOrEmpty
+            $result.Primary           | Should -BeFalse
+            $result.ValidateCerts     | Should -BeFalse
+            $result.AuthType          | Should -Be "Credential (Not Cached)"
+            $result.AutoAddHostKey    | Should -BeFalse
         }
 
         It "Should construct FQDN correctly when Domain parameter is provided" {
             Connect-IBMStorageVirtualize -Cluster "1.1.1.11" -Domain example.com -Credential $script:pwsh_cred
 
             $result = Get-IBMSVSession -Cluster "1.1.1.11"
-            $result.Cluster       | Should -Be "1.1.1.11"
-            $result.Domain        | Should -Be "example.com"
-            $result.Primary       | Should -BeFalse
-            $result.ValidateCerts | Should -BeFalse
-            $result.AuthType      | Should -Be "Credential (Not Cached)"
+            $result.Cluster           | Should -Be "1.1.1.11"
+            $result.Domain            | Should -Be "example.com"
+            $result.Primary           | Should -BeFalse
+            $result.ValidateCerts     | Should -BeFalse
+            $result.AuthType          | Should -Be "Credential (Not Cached)"
+            $result.AutoAddHostKey    | Should -BeFalse
         }
 
         It "Should create and marks session as primary when Primary switch is specified" {
             Connect-IBMStorageVirtualize -Cluster "1.1.1.11" -Credential $script:pwsh_cred -Primary
 
             $result = Get-IBMSVSession -Cluster "1.1.1.11"
-            $result.Cluster       | Should -Be "1.1.1.11"
-            $result.Domain        | Should -BeNullOrEmpty
-            $result.Primary       | Should -BeTrue
-            $result.ValidateCerts | Should -BeFalse
-            $result.AuthType      | Should -Be "Credential (Not Cached)"
+            $result.Cluster           | Should -Be "1.1.1.11"
+            $result.Domain            | Should -BeNullOrEmpty
+            $result.Primary           | Should -BeTrue
+            $result.ValidateCerts     | Should -BeFalse
+            $result.AuthType          | Should -Be "Credential (Not Cached)"
+            $result.AutoAddHostKey    | Should -BeFalse
 
             $result2 = Get-IBMSVSession -Primary
             $result2 | Should -BeLike $result
@@ -122,22 +149,24 @@ Describe "Connect-IBMStorageVirtualize" {
             Connect-IBMStorageVirtualize -Cluster "1.1.1.11" -Credential $script:pwsh_cred
 
             $result = Get-IBMSVSession -Cluster "1.1.1.11"
-            $result.Cluster       | Should -Be "1.1.1.11"
-            $result.Domain        | Should -BeNullOrEmpty
-            $result.Primary       | Should -BeFalse
-            $result.ValidateCerts | Should -BeFalse
-            $result.AuthType      | Should -Be "Credential (Not Cached)"
+            $result.Cluster           | Should -Be "1.1.1.11"
+            $result.Domain            | Should -BeNullOrEmpty
+            $result.Primary           | Should -BeFalse
+            $result.ValidateCerts     | Should -BeFalse
+            $result.AuthType          | Should -Be "Credential (Not Cached)"
+            $result.AutoAddHostKey    | Should -BeFalse
         }
 
         It "Should enable certificate validation when ValidateCerts switch is specified" {
             Connect-IBMStorageVirtualize -Cluster "1.1.1.11" -Credential $script:pwsh_cred -ValidateCerts
 
             $result = Get-IBMSVSession -Cluster "1.1.1.11"
-            $result.Cluster       | Should -Be "1.1.1.11"
-            $result.Domain        | Should -BeNullOrEmpty
-            $result.Primary       | Should -BeFalse
-            $result.ValidateCerts | Should -BeTrue
-            $result.AuthType      | Should -Be "Credential (Not Cached)"
+            $result.Cluster           | Should -Be "1.1.1.11"
+            $result.Domain            | Should -BeNullOrEmpty
+            $result.Primary           | Should -BeFalse
+            $result.ValidateCerts     | Should -BeTrue
+            $result.AuthType          | Should -Be "Credential (Not Cached)"
+            $result.AutoAddHostKey    | Should -BeFalse
         }
     }
 
@@ -239,6 +268,30 @@ Describe "Connect-IBMStorageVirtualize" {
             $result.AuthType   | Should -Be "Secret"
             $result.SecretName | Should -Be "test-secret"
             $result.VaultName  | Should -Be "MyVault"
+        }
+    }
+
+    Context "Plugin Registration" {
+        BeforeEach {
+            InModuleScope IBMStorageVirtualize {
+                $script:sessions = @{}
+                $script:primarysession = $null
+            }
+            Mock Invoke-RestMethod { return @{ token = "abc123" } } -ModuleName IBMStorageVirtualize
+        }
+
+        It "Should call plugin registration when credential is provided" {
+            Mock Invoke-IBMSVPluginRegistration { return @{} } -ModuleName IBMStorageVirtualize
+
+            Connect-IBMStorageVirtualize -Cluster "1.1.1.11" -Credential $script:pwsh_cred
+
+            Should -Invoke Invoke-IBMSVPluginRegistration -ModuleName IBMStorageVirtualize -Times 1 -Exactly
+        }
+
+        It "Should not fail if plugin registration returns error" {
+            Mock Invoke-IBMSVPluginRegistration { return @{ err = "Plugin registration failed" } } -ModuleName IBMStorageVirtualize
+
+            { Connect-IBMStorageVirtualize -Cluster "1.1.1.11" -Credential $script:pwsh_cred } | Should -Not -Throw
         }
     }
 }

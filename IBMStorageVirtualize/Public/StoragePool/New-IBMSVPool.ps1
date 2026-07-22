@@ -1,16 +1,9 @@
 <#
 .SYNOPSIS
-Creates a new storage pool (MDisk Group) in an IBM Storage Virtualize system.
+Creates a new storage pool on an IBM Storage Virtualize system.
 
 .DESCRIPTION
-The New-IBMSVPool cmdlet creates a storage pool (MDisk Group) with specified attributes.
-
-It maps to the mkmdiskgrp command.
-
-The cmdlet is idempotent:
-- If a pool with the specified name already exists, the existing object is returned.
-
-Supports -WhatIf and -Confirm for safe execution.
+The New-IBMSVPool cmdlet creates a storage pool on an IBM Storage Virtualize system.
 
 .PARAMETER Name
 Specifies the name of the pool to create.
@@ -24,30 +17,25 @@ Valid values: tier0_flash, tier1_flash, tier_enterprise, tier_nearline, tier_scm
 
 .PARAMETER Ext
 Specifies the extent size (in MB) for the pool.
-
 Required when creating a standard pool (without -ParentMdiskGrp).
 
 .PARAMETER ParentMdiskGrp
 Specifies the parent pool for creating a child pool.
-
 When specified:
 - Parameters -Ext, -Tier, and -EasyTier cannot be used.
 - Additional constraints apply based on parent pool type.
 
 .PARAMETER Size
 Specifies the size of the child pool.
-
 Must be used with -Unit.
 Mutually exclusive with -NoQuota.
 
 .PARAMETER NoQuota
 Specifies that the child pool has no quota.
-
 Mutually exclusive with -Size.
 
 .PARAMETER Safeguarded
 Specifies that the pool is safeguarded.
-
 Mutually exclusive with -Owner and -OwnershipGroup.
 
 .PARAMETER Warning
@@ -60,17 +48,14 @@ Valid values: b, kb, mb, gb, tb, pb.
 .PARAMETER EasyTier
 Specifies the Easy Tier setting for the pool.
 Valid values: on, off, auto, measure.
-
 Cannot be used with -ParentMdiskGrp.
 
 .PARAMETER Owner
 Specifies the owner of the pool.
-
 Mutually exclusive with -Safeguarded.
 
 .PARAMETER OwnershipGroup
 Specifies the ownership group of the pool.
-
 Mutually exclusive with -Safeguarded.
 
 .PARAMETER Encrypt
@@ -80,7 +65,6 @@ Valid values: yes, no.
 .PARAMETER DataReduction
 Specifies whether data reduction is enabled.
 Valid values: yes, no.
-
 Required when creating a child pool from a data reduction parent.
 
 .PARAMETER ProvisioningPolicy
@@ -98,47 +82,36 @@ Specifies the replication pool link UID.
 
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
-
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> New-IBMSVPool -Name Pool1 -Mdisk Mdisk1,Mdisk2 -Tier tier_enterprise -Ext 1024
-
 Creates a standard pool using specified MDisks and extent size.
 
 .EXAMPLE
 PS> New-IBMSVPool -Name Pool1 -Mdisk Mdisk1,Mdisk2 -Tier tier_enterprise -Ext 1024 -Encrypt yes
-
 Creates an encrypted pool.
 
 .EXAMPLE
 PS> New-IBMSVPool -Name ChildPool -ParentMdiskGrp ParentPool -Size 500 -Unit gb
-
 Creates a child pool with a defined quota.
 
 .EXAMPLE
 PS> New-IBMSVPool -Name DRChildPool -ParentMdiskGrp ParentPool -DataReduction yes -NoQuota
-
 Creates a data reduction child pool without quota.
 
 .INPUTS
 System.String
-
 You can pipe objects with a Name property to this cmdlet.
 
 .OUTPUTS
 System.Object
-
-Returns the created pool object.
-
-If the pool already exists, the existing object is returned.
+Returns the created pool, or the existing pool if it already exists.
 
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
 - Performs an existence check before creation.
-- Performs validation of parameter combinations before execution.
-- Supports both standard and child pool creation.
-- Fully supports -WhatIf and -Confirm.
+- Supports -WhatIf and -Confirm.
 
 .LINK
 https://www.ibm.com/docs/en/search/mkmdiskgrp
@@ -297,7 +270,7 @@ function New-IBMSVPool {
                     $value = $PSBoundParameters[$field]
                     if ($null -ne $value -and $value -ne '') {
                         if ($value -is [System.Management.Automation.SwitchParameter]) {
-                            $opts[$field.ToLower()] = if ($value.IsPresent) { $true } else { $false }
+                            $opts[$field.ToLower()] = $value.IsPresent
                         }
                         else {
                             $opts[$field.ToLower()] = $value

@@ -1,37 +1,25 @@
 <#
 .SYNOPSIS
-Modifies an existing storage pool (MDisk Group) in an IBM Storage Virtualize system.
+Modifies an existing storage pool on an IBM Storage Virtualize system.
 
 .DESCRIPTION
-The Set-IBMSVPool cmdlet updates properties of an existing storage pool (MDisk Group).
-
-It maps to the chmdiskgrp command.
-
-The cmdlet is idempotent:
-- Only properties that differ from the current configuration are modified.
-- If no changes are required, no operation is performed.
-
-Supports -WhatIf and -Confirm for safe execution.
+The Set-IBMSVPool cmdlet updates properties of an existing storage pool.
 
 .PARAMETER Name
 Specifies the name of the pool to modify.
 
 .PARAMETER NewName
 Specifies a new name for the pool.
-
 If both Name and NewName exist, the operation fails.
-
 If the specified Name does not exist but NewName exists, the cmdlet continues updating the NewName pool.
 
 .PARAMETER Size
 Specifies the new size of the pool.
-
 If -Unit is specified, the value is interpreted accordingly.
 Shrink operations are validated to ensure the size is not less than used capacity.
 
 .PARAMETER Warning
 Specifies the warning threshold for the pool.
-
 Can be specified as:
 - A percentage (for example, 80%), or
 - An absolute value used with -Unit
@@ -49,7 +37,6 @@ Specifies the ownership group for the pool.
 
 .PARAMETER NoOwnershipGroup
 Specifies that the ownership group should be removed.
-
 Mutually exclusive with -OwnershipGroup.
 
 .PARAMETER ProvisioningPolicy
@@ -57,12 +44,10 @@ Specifies the provisioning policy for the pool.
 
 .PARAMETER NoProvisioningPolicy
 Specifies that the provisioning policy should be removed.
-
 Mutually exclusive with -ProvisioningPolicy.
 
 .PARAMETER EtfcmOverAllocationMax
 Specifies the Easy Tier FCM over-allocation limit.
-
 Accepts percentage values (for example, 20%) or 'off'.
 
 .PARAMETER VdiskProtectionEnabled
@@ -74,7 +59,6 @@ Specifies the replication pool link UID.
 
 .PARAMETER MovePoolLink
 Specifies that the replication pool link should be moved.
-
 Requires -ReplicationPoolLinkUid.
 
 .PARAMETER ResetReplicationPoolLinkUid
@@ -82,34 +66,28 @@ Specifies that the replication pool link UID should be reset.
 
 .PARAMETER ReplaceExistingLink
 Specifies that any existing replication link should be replaced.
-
 Requires -ReplicationPoolLinkUid or -ResetReplicationPoolLinkUid.
 
 .PARAMETER ReplicationPartnerClusterid
 Specifies the partner cluster ID for replication configuration.
-
 Mutually exclusive with:
 - -ReplicationPoolLinkUid
 - -ResetReplicationPoolLinkUid
 
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
-
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> Set-IBMSVPool -Name Pool1 -NewName Pool2 -Size 500 -Unit gb
-
 Renames `Pool1` to `Pool2` and sets its size to 500 GB.
 
 .EXAMPLE
 PS> Set-IBMSVPool -Name Pool1 -ReplicationPoolLinkUid 12345 -MovePoolLink
-
 Updates replication pool link configuration.
 
 .INPUTS
 System.String
-
 You can pipe objects with a Name property to this cmdlet.
 
 .OUTPUTS
@@ -117,11 +95,7 @@ None.
 
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
-- If the specified pool does not exist, a terminating error is thrown.
-- If both Name and NewName exist, the operation fails.
-- Only modified properties are sent to the backend.
-- Performs validation of parameter combinations before execution.
-- Fully supports -WhatIf and -Confirm.
+- Supports -WhatIf and -Confirm.
 
 .LINK
 https://www.ibm.com/docs/en/search/chmdiskgrp

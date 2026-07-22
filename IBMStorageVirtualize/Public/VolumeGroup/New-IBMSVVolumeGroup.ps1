@@ -3,26 +3,17 @@
 Creates a new volumegroup in an IBM Storage Virtualize system.
 
 .DESCRIPTION
-The New-IBMSVVolumeGroup cmdlet creates a volumegroup.
-
-It maps to the mkvolumegroup command.
-
-The cmdlet is idempotent:
-- If the specified volumegroup already exists, the existing object is returned.
-
-Supports -WhatIf and -Confirm for safe execution.
+The New-IBMSVVolumeGroup cmdlet creates a volumegroup in an IBM Storage Virtualize system.
 
 .PARAMETER Name
 Specifies the name of the volumegroup.
 
 .PARAMETER OwnershipGroup
 Specifies the ownership group for the volumegroup.
-
 Mutually exclusive with -SafeguardedPolicy and -SnapshotPolicy.
 
 .PARAMETER Partition
 Specifies the partition for the volumegroup.
-
 Mutually exclusive with -DraftPartition.
 
 .PARAMETER IgnoreUserFCMaps
@@ -30,82 +21,65 @@ Specifies that user-created FlashCopy mappings are ignored.
 
 .PARAMETER SnapshotPolicy
 Specifies the snapshot policy for the volumegroup.
-
 Mutually exclusive with -OwnershipGroup and -SetPartitionDefault.
 
 .PARAMETER ReplicationPolicy
 Specifies the replication policy for the volumegroup.
-
 Mutually exclusive with -DraftPartition and -SetPartitionDefault.
 
 .PARAMETER SafeguardedPolicy
 Specifies the safeguarded policy for the volumegroup.
-
 Mutually exclusive with -OwnershipGroup, -Safeguarded, and -SetPartitionDefault.
 
 .PARAMETER PolicyStartTime
 Specifies the policy start time in ISO 8601 format.
-
 Requires -SafeguardedPolicy or -SnapshotPolicy.
 
 .PARAMETER Safeguarded
 Specifies that the volumegroup is safeguarded.
-
 Requires -SnapshotPolicy.
 Mutually exclusive with -SafeguardedPolicy.
 
 .PARAMETER DraftPartition
 Specifies the draft partition for the volumegroup.
-
 Mutually exclusive with -Partition and -ReplicationPolicy.
 
 .PARAMETER SetPartitionDefault
 Specifies that the partition is set as default.
-
 Mutually exclusive with -SafeguardedPolicy, -ReplicationPolicy, and -SnapshotPolicy.
 
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
-
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> New-IBMSVVolumeGroup -Name vg1
-
 Creates a volumegroup.
 
 .EXAMPLE
 PS> New-IBMSVVolumeGroup -Name vg1 -SnapshotPolicy snap_policy1
-
 Creates a volumegroup with a snapshot policy.
 
 .EXAMPLE
 PS> New-IBMSVVolumeGroup -Name vg1 -SnapshotPolicy snap_policy1 -Safeguarded -IgnoreUserFCMaps
-
 Creates a safeguarded volumegroup.
 
 .EXAMPLE
 PS> New-IBMSVVolumeGroup -Name vg1 -SnapshotPolicy snap_policy1 -ReplicationPolicy rep_policy1
-
 Creates a volumegroup with snapshot and replication policies.
 
 .INPUTS
 System.String
-
 You can pipe objects with a Name property to this cmdlet.
 
 .OUTPUTS
 System.Object
-
-Returns the created volumegroup object.
-
-If the volumegroup already exists, the existing object is returned.
+Returns the created volume group, or the existing volume group if it already exists.
 
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
 - Performs an existence check before creation.
-- Performs validation of parameter combinations before execution.
-- Fully supports -WhatIf and -Confirm.
+- Supports -WhatIf and -Confirm.
 
 .LINK
 https://www.ibm.com/docs/en/search/mkvolumegroup
@@ -184,7 +158,7 @@ function New-IBMSVVolumeGroup {
                     $value = $PSBoundParameters[$field]
                     if ($null -ne $value -and $value -ne '') {
                         if ($value -is [System.Management.Automation.SwitchParameter]) {
-                            $opts[$field.ToLower()] = if ($value.IsPresent) { $true } else { $false }
+                            $opts[$field.ToLower()] = $value.IsPresent
                         }
                         else {
                             $opts[$field.ToLower()] = $value

@@ -5,31 +5,13 @@ Modifies an existing host on an IBM Storage Virtualize system.
 .DESCRIPTION
 The Set-IBMSVHost cmdlet updates properties of an existing host.
 
-It maps to chhost, addhostport, rmhostport, addhostiogrp, rmhostiogrp,
-addhostclustermember, rmhostclustermember, and related commands depending on requested changes.
-
-Some parameter updates are applied in multiple operations when required to satisfy
-mutual exclusivity constraints.
-
-The cmdlet is idempotent:
-- Only properties that differ from the current configuration are modified.
-- If no changes are required, no REST calls are made.
-
-Supports -WhatIf and -Confirm for safe execution.
-
-For parameters that accept multiple values (for example, FCWWPN, SasWWPN,
-IscsiName, Nqn, and IOGrp), the provided list represents the desired final state.
-Existing values not in the list are removed, and new values are added.
-
 .PARAMETER Name
 Specifies the name of the host to update.
 
 .PARAMETER NewName
 Specifies a new name for the host.
-
-If both Name and NewName exist, the operation fails.
-
-If the specified Name does not exist but NewName exists, the cmdlet continues updating the NewName host.
+If host with both Name and NewName exist, the operation fails.
+If the host with specified Name does not exist but host with NewName exists, the cmdlet continues updating the NewName host.
 
 .PARAMETER Type
 Specifies the host type.
@@ -52,15 +34,12 @@ Specifies one or more I/O groups.
 
 .PARAMETER HostUsername
 Specifies the iSCSI CHAP username.
-
 On systems running version 8.7.2.0 or later, this maps to the hostusername option of the chhost command.
 On earlier versions, the cmdlet uses the iscsiusername option to achieve the same behavior.
-
 Requires -HostSecret.
 
 .PARAMETER HostSecret
 Specifies the iSCSI CHAP secret.
-
 On systems running version 8.7.2.0 or later, this maps to the hostsecret option of the chhost command.
 On earlier versions, the cmdlet uses the chapsecret option to achieve the same behavior.
 
@@ -69,12 +48,10 @@ Removes the host CHAP secret.
 
 .PARAMETER StorageUsername
 Specifies the storage CHAP username.
-
 Requires -HostSecret and -StorageSecret.
 
 .PARAMETER StorageSecret
 Specifies the storage CHAP secret.
-
 Requires -HostSecret.
 
 .PARAMETER NoStorageSecret
@@ -137,62 +114,50 @@ Removes the host from its host cluster.
 
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
-
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> Set-IBMSVHost -Name Host1 -NewName HostOne
-
 Renames the host.
 
 .EXAMPLE
 PS> Set-IBMSVHost -Name Host1 -Type generic
-
 Updates the host type.
 
 .EXAMPLE
 PS> Set-IBMSVHost -Name Host1 -FCWWPN "210100E08B251EE6:210100F08C262EE7"
-
 Replaces all FC WWPNs with the provided list.
 
 .EXAMPLE
 PS> Set-IBMSVHost -Name Host1 -IOGrp 0,1
-
 Updates I/O group assignments.
 
 .EXAMPLE
 PS> Set-IBMSVHost -Name Host1 -HostCluster Cluster1
-
 Adds the host to a host cluster.
 
 .EXAMPLE
 PS> Set-IBMSVHost -Name Host1 -NoHostCluster
-
 Removes the host from its host cluster.
 
 .EXAMPLE
 PS> Set-IBMSVHost -Name Host1 -HostUsername user -HostSecret secret
-
 Configures CHAP authentication.
 
 .EXAMPLE
 PS> Set-IBMSVHost -Name Host1 -StorageUsername storageuser -StorageSecret storagesecret -HostSecret hostsecret
-
 Configures mutual CHAP authentication (requires supported system version).
 
 .EXAMPLE
 PS> Set-IBMSVHost -Name Host1 -AutoStorageDiscovery yes -SuppressOfflineAlert yes
-
 Updates advanced host settings.
 
 .EXAMPLE
 PS> Set-IBMSVHost -Name Host1 -WhatIf
-
 Shows what would happen without applying changes.
 
 .INPUTS
 System.String
-
 You can pipe objects with a Name property to this cmdlet.
 
 .OUTPUTS
@@ -200,12 +165,8 @@ None.
 
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
-- If the specified host does not exist, a terminating error is thrown.
-- If both Name and NewName exist, the operation fails.
-- Only modified properties are sent to the backend.
-- Performs validation of parameter combinations before execution.
-- Some updates are applied in multiple steps to satisfy mutual exclusivity constraints.
-- Fully supports -WhatIf and -Confirm.
+- Multiple parameter update is non-atomic"
+- Supports -WhatIf and -Confirm.
 
 .LINK
 https://www.ibm.com/docs/en/search/chhost

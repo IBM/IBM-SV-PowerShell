@@ -24,13 +24,13 @@
                 )
             }
             if ($Cmd -eq 'chsystem') {
-                return [pscustomobject]@{ message = 'System updated successfully' }
+                return $null
             }
             if ($Cmd -eq 'settimezone') {
-                return [pscustomobject]@{ message = 'Timezone set successfully' }
+                return $null
             }
             if ($Cmd -eq 'setsystemtime') {
-                return [pscustomobject]@{ message = 'System time set successfully' }
+                return $null
             }
         } -ModuleName IBMStorageVirtualize
     }
@@ -128,7 +128,7 @@
                 }
             }
             if ($Cmd -eq 'chsystem') {
-                return [pscustomobject]@{ message = 'System updated successfully' }
+                return $null
             }
         } -ModuleName IBMStorageVirtualize
 
@@ -191,13 +191,13 @@
                 }
             }
             if ($Cmd -eq 'chsystem') {
-                return [pscustomobject]@{ message = 'System updated successfully' }
+                return $null
             }
             if ($Cmd -eq 'settimezone') {
-                return [pscustomobject]@{ message = 'Timezone set successfully' }
+                return $null
             }
             if ($Cmd -eq 'setsystemtime') {
-                return [pscustomobject]@{ message = 'System time set successfully' }
+                return $null
             }
         } -ModuleName IBMStorageVirtualize
 
@@ -229,7 +229,7 @@
                 )
             }
             if ($Cmd -eq 'settimezone') {
-                return [pscustomobject]@{ message = 'Timezone set successfully' }
+                return $null
             }
         } -ModuleName IBMStorageVirtualize
 

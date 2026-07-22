@@ -1,4 +1,4 @@
-﻿$SensitiveKeys = @(
+$SensitiveKeys = @(
     'password', 'siapikey', 'hostsecret', 'storagesecret', 'licensekey', 'chapsecret',
     'pass', 'secret', 'token', 'key', 'apikey', 'api_key',
     'authorization', 'auth', 'credential', 'privatekey'

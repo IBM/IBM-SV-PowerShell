@@ -10,7 +10,7 @@
                 }
             }
             if ($Cmd -eq 'rmvolume') {
-                return [pscustomobject]@{ message = 'Volume removed successfully' }
+                return $null
             }
         } -ModuleName IBMStorageVirtualize
     }

@@ -1,4 +1,4 @@
-﻿function Invoke-IBMSVRestRequest {
+function Invoke-IBMSVRestRequest {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
@@ -78,7 +78,12 @@
             }
 
             if (-not $bodyText -and $_.ErrorDetails -and $_.ErrorDetails.Message) {
-                $bodyText = try { $_.ErrorDetails.Message | ConvertFrom-Json } catch { $_.ErrorDetails.Message }
+                try {
+                    $bodyText = $_.ErrorDetails.Message | ConvertFrom-Json
+                }
+                catch {
+                    $bodyText = $_.ErrorDetails.Message
+                }
             }
 
             if (-not $status -and $_.Exception.Response) {
@@ -114,7 +119,7 @@
             }
 
             if ($status -eq 401) {
-                Write-IBMSVLog -Level WARN -Message "Unauthorized (401) — Token expired. Refreshing token..."
+                Write-IBMSVLog -Level WARN -Message "Unauthorized (401) - Token expired. Refreshing token..."
 
                 $cred = $null
 

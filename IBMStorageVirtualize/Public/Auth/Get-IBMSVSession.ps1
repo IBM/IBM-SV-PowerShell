@@ -51,7 +51,7 @@ System.Management.Automation.PSCustomObject
 function Get-IBMSVSessionView {
     param($session)
 
-    $baseObj = @{
+    $baseObj = [ordered]@{
         Cluster          = $session.Cluster
         Domain           = $session.Domain
         Primary          = $session.Primary
@@ -66,8 +66,9 @@ function Get-IBMSVSessionView {
         }
         SecretName       = $session.SecretName
         VaultName        = $session.VaultName
-        LastRestAuthTime = $session.RestLastAuthenticated
+        LastRestAuthTime = $session.LastRestAuthTime
         ValidateCerts    = $session.ValidateCerts
+        AutoAddHostKey   = $session.AutoAddHostKey
         SVCVersion       = $session.SVCVersion
     }
 
@@ -109,5 +110,4 @@ function Get-IBMSVSession {
 
     Write-IBMSVLog -Level INFO -Message "No active session found."
     return
-
 }

@@ -14,6 +14,11 @@ Describe "Get-IBMSVSession" {
             $script:primarysession = $null
         }
     }
+    Context "Parameter Validation" {
+        It "Should throw when both -Cluster and -Primary parameters are specified" {
+            { Get-IBMSVSession -Cluster "1.1.1.11" -Primary } | Should -Throw "Cannot specify both -Cluster and -Primary parameters*"
+        }
+    }
 
     Context "Cluster lookup" {
         It "Should return session for specified cluster" {
@@ -30,20 +35,22 @@ Describe "Get-IBMSVSession" {
                         SVCVersion = $null
                         SecretName = $null
                         VaultName = $null
+                        AutoAddHostKey = $false
                     }
                 }
                 $script:primarysession = $null
             }
 
             $result = Get-IBMSVSession -Cluster "1.1.1.11"
-            $result.Cluster       | Should -Be "1.1.1.11"
-            $result.Domain        | Should -BeNullOrEmpty
-            $result.Primary       | Should -BeFalse
-            $result.ValidateCerts | Should -BeFalse
-            $result.AuthType      | Should -Be "Credential (Cached)"
-            $result.SVCVersion    | Should -BeNullOrEmpty
-            $result.SecretName    | Should -BeNullOrEmpty
-            $result.VaultName     | Should -BeNullOrEmpty
+            $result.Cluster           | Should -Be "1.1.1.11"
+            $result.Domain            | Should -BeNullOrEmpty
+            $result.Primary           | Should -BeFalse
+            $result.ValidateCerts     | Should -BeFalse
+            $result.AuthType          | Should -Be "Credential (Cached)"
+            $result.SVCVersion        | Should -BeNullOrEmpty
+            $result.SecretName        | Should -BeNullOrEmpty
+            $result.VaultName         | Should -BeNullOrEmpty
+            $result.AutoAddHostKey    | Should -BeFalse
         }
 
         It "Should return null without error when cluster does not exist" {
@@ -66,20 +73,22 @@ Describe "Get-IBMSVSession" {
                         SVCVersion = $null
                         SecretName = $null
                         VaultName = $null
+                        AutoAddHostKey = $false
                     }
                 }
                 $script:primarysession = "1.1.1.11"
             }
 
             $result = Get-IBMSVSession -Primary
-            $result.Cluster       | Should -Be "1.1.1.11"
-            $result.Domain        | Should -BeNullOrEmpty
-            $result.Primary       | Should -BeTrue
-            $result.ValidateCerts | Should -BeFalse
-            $result.AuthType      | Should -Be "Credential (Cached)"
-            $result.SVCVersion    | Should -BeNullOrEmpty
-            $result.SecretName    | Should -BeNullOrEmpty
-            $result.VaultName     | Should -BeNullOrEmpty
+            $result.Cluster           | Should -Be "1.1.1.11"
+            $result.Domain            | Should -BeNullOrEmpty
+            $result.Primary           | Should -BeTrue
+            $result.ValidateCerts     | Should -BeFalse
+            $result.AuthType          | Should -Be "Credential (Cached)"
+            $result.SVCVersion        | Should -BeNullOrEmpty
+            $result.SecretName        | Should -BeNullOrEmpty
+            $result.VaultName         | Should -BeNullOrEmpty
+            $result.AutoAddHostKey    | Should -BeFalse
         }
 
         It "Should return null without error when no primary session exists" {
@@ -102,6 +111,7 @@ Describe "Get-IBMSVSession" {
                         SVCVersion = $null
                         SecretName = $null
                         VaultName = $null
+                        AutoAddHostKey = $false
                     }
                     "1.1.1.12" = @{
                         Cluster = "1.1.1.12"
@@ -114,6 +124,7 @@ Describe "Get-IBMSVSession" {
                         SVCVersion = $null
                         SecretName = "test_secret"
                         VaultName = "test_vault"
+                        AutoAddHostKey = $false
                     }
                 }
                 $script:primarysession = "1.1.1.11"
@@ -121,23 +132,25 @@ Describe "Get-IBMSVSession" {
 
             $result = Get-IBMSVSession
             $result.Count | Should -Be 2
-            ($result | Where-Object Cluster -eq "1.1.1.11").Cluster       | Should -Be "1.1.1.11"
-            ($result | Where-Object Cluster -eq "1.1.1.11").Domain        | Should -BeNullOrEmpty
-            ($result | Where-Object Cluster -eq "1.1.1.11").Primary       | Should -BeTrue
-            ($result | Where-Object Cluster -eq "1.1.1.11").ValidateCerts | Should -BeFalse
-            ($result | Where-Object Cluster -eq "1.1.1.11").AuthType      | Should -Be "Credential (Cached)"
-            ($result | Where-Object Cluster -eq "1.1.1.11").SVCVersion    | Should -BeNullOrEmpty
-            ($result | Where-Object Cluster -eq "1.1.1.11").SecretName    | Should -BeNullOrEmpty
-            ($result | Where-Object Cluster -eq "1.1.1.11").VaultName     | Should -BeNullOrEmpty
+            ($result | Where-Object Cluster -eq "1.1.1.11").Cluster           | Should -Be "1.1.1.11"
+            ($result | Where-Object Cluster -eq "1.1.1.11").Domain            | Should -BeNullOrEmpty
+            ($result | Where-Object Cluster -eq "1.1.1.11").Primary           | Should -BeTrue
+            ($result | Where-Object Cluster -eq "1.1.1.11").ValidateCerts     | Should -BeFalse
+            ($result | Where-Object Cluster -eq "1.1.1.11").AuthType          | Should -Be "Credential (Cached)"
+            ($result | Where-Object Cluster -eq "1.1.1.11").SVCVersion        | Should -BeNullOrEmpty
+            ($result | Where-Object Cluster -eq "1.1.1.11").SecretName        | Should -BeNullOrEmpty
+            ($result | Where-Object Cluster -eq "1.1.1.11").VaultName         | Should -BeNullOrEmpty
+            ($result | Where-Object Cluster -eq "1.1.1.11").AutoAddHostKey    | Should -BeFalse
 
-            ($result | Where-Object Cluster -eq "1.1.1.12").Cluster       | Should -Be "1.1.1.12"
-            ($result | Where-Object Cluster -eq "1.1.1.12").Domain        | Should -BeNullOrEmpty
-            ($result | Where-Object Cluster -eq "1.1.1.12").Primary       | Should -BeFalse
-            ($result | Where-Object Cluster -eq "1.1.1.12").ValidateCerts | Should -BeFalse
-            ($result | Where-Object Cluster -eq "1.1.1.12").AuthType      | Should -Be "Secret"
-            ($result | Where-Object Cluster -eq "1.1.1.12").SVCVersion    | Should -BeNullOrEmpty
-            ($result | Where-Object Cluster -eq "1.1.1.12").SecretName    | Should -Be "test_secret"
-            ($result | Where-Object Cluster -eq "1.1.1.12").VaultName     | Should -Be "test_vault"
+            ($result | Where-Object Cluster -eq "1.1.1.12").Cluster           | Should -Be "1.1.1.12"
+            ($result | Where-Object Cluster -eq "1.1.1.12").Domain            | Should -BeNullOrEmpty
+            ($result | Where-Object Cluster -eq "1.1.1.12").Primary           | Should -BeFalse
+            ($result | Where-Object Cluster -eq "1.1.1.12").ValidateCerts     | Should -BeFalse
+            ($result | Where-Object Cluster -eq "1.1.1.12").AuthType          | Should -Be "Secret"
+            ($result | Where-Object Cluster -eq "1.1.1.12").SVCVersion        | Should -BeNullOrEmpty
+            ($result | Where-Object Cluster -eq "1.1.1.12").SecretName        | Should -Be "test_secret"
+            ($result | Where-Object Cluster -eq "1.1.1.12").VaultName         | Should -Be "test_vault"
+            ($result | Where-Object Cluster -eq "1.1.1.12").AutoAddHostKey    | Should -BeFalse
 
         }
 
