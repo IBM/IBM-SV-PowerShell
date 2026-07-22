@@ -1,26 +1,16 @@
 <#
 .SYNOPSIS
-Modifies an existing MDisk (Managed Disk) in an IBM Storage Virtualize system.
+Modifies an existing MDisk on an IBM Storage Virtualize system.
 
 .DESCRIPTION
 The Set-IBMSVMDisk cmdlet updates properties of an existing MDisk.
-
-It maps to the chmdisk command.
-
-The cmdlet is idempotent:
-- Only properties that differ from the current configuration are modified.
-- If no changes are required, no operation is performed.
-
-Supports -WhatIf and -Confirm for safe execution.
 
 .PARAMETER Name
 Specifies the name of the MDisk to modify.
 
 .PARAMETER NewName
 Specifies a new name for the MDisk.
-
 If both Name and NewName exist, the operation fails.
-
 If the specified Name does not exist but NewName exists, the cmdlet continues updating the NewName mdisk.
 
 .PARAMETER Tier
@@ -33,32 +23,26 @@ Valid values: default, low, medium, high, very_high.
 
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
-
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> Set-IBMSVMDisk -Name "mdisk01" -NewName "mdisk_prod"
-
 Renames the MDisk from "mdisk01" to "mdisk_prod".
 
 .EXAMPLE
 PS> Set-IBMSVMDisk -Name "mdisk01" -Tier "tier0_flash"
-
 Updates the storage tier of "mdisk01" to tier0_flash.
 
 .EXAMPLE
 PS> Set-IBMSVMDisk -Name "mdisk01" -EasyTierLoad "high"
-
 Sets the Easy Tier load priority of "mdisk01" to high.
 
 .EXAMPLE
 PS> Set-IBMSVMDisk -Name "mdisk01" -NewName "mdisk_prod" -Tier "tier1_flash" -EasyTierLoad "medium"
-
 Updates multiple properties of the MDisk in a single operation.
 
 .INPUTS
 System.String
-
 You can pipe an MDisk name or objects with a Name property to this cmdlet.
 
 .OUTPUTS
@@ -66,10 +50,7 @@ None.
 
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
-- If the specified MDisk does not exist, a terminating error is thrown.
-- If both Name and NewName exist, the operation fails.
-- Only modified properties are sent to the backend.
-- Fully supports -WhatIf and -Confirm.
+- Supports -WhatIf and -Confirm.
 
 .LINK
 https://www.ibm.com/docs/en/search/chmdisk

@@ -1,77 +1,57 @@
 <#
 .SYNOPSIS
-Creates a new volume-to-host or host cluster mapping in an IBM Storage Virtualize system.
+Creates a new volume-to-host or host cluster mapping on an IBM Storage Virtualize system.
 
 .DESCRIPTION
-The New-IBMSVVolToHostMap cmdlet creates a mapping between a volume and a host or host cluster.
-
-It maps to mkvdiskhostmap, mkvolumehostclustermap, and related commands based on the target.
-
-The cmdlet is idempotent:
-- If the specified mapping already exists, the existing mapping is returned.
-
-Supports -WhatIf and -Confirm for safe execution.
+The New-IBMSVVolToHostMap cmdlet creates a volume-to-host mapping on an IBM Storage Virtualize system.
 
 .PARAMETER Volume
 Specifies the name or UID of the volume to map.
 
 .PARAMETER HostName
 Specifies the host name for the mapping.
-
 Mutually exclusive with -HostCluster.
 
 .PARAMETER HostCluster
 Specifies the host cluster name for the mapping.
-
 Mutually exclusive with -HostName.
 
 .PARAMETER SCSI
 Specifies the SCSI logical unit number (LUN) ID.
-
 Mutually exclusive with -AllowMismatchedScsiIds.
 
 .PARAMETER AllowMismatchedScsiIds
 Specifies that non-identical SCSI LUN IDs are allowed across I/O groups.
-
 Mutually exclusive with -SCSI.
 
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
-
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> New-IBMSVVolToHostMap -Volume volume0 -HostName host4test -SCSI 1
-
 Creates a mapping to a host.
 
 .EXAMPLE
 PS> New-IBMSVVolToHostMap -Volume volume0 -HostCluster cluster01
-
 Creates a mapping to a host cluster.
 
 .EXAMPLE
 PS> New-IBMSVVolToHostMap -Volume volume1 -HostName hostA -AllowMismatchedScsiIds
-
 Creates a mapping allowing mismatched SCSI IDs.
 
 .INPUTS
 System.String
-
 You can pipe objects with Volume, HostName, or HostCluster properties to this cmdlet.
 
 .OUTPUTS
 System.Object
-
-Returns the mapping object.
-
-If the mapping already exists, the existing object is returned.
+Returns the created mapping object, or the existing mapping object if it already exists.
 
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
 - Performs an existence check before creation.
-- Performs validation of parameter combinations before execution.
-- Fully supports -WhatIf and -Confirm.
+- Supports -WhatIf and -Confirm.
 
 .LINK
 https://www.ibm.com/docs/en/search/mkvdiskhostmap

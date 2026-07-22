@@ -17,28 +17,23 @@ Specifies the MDisk group for which to retrieve recommendations.
 
 .PARAMETER DriveClass
 Specifies the drive class ID.
-
 Default: 0.
 
 .PARAMETER DriveCount
 Specifies the number of drives to consider.
-
 If not specified, all available candidate drives of the specified class are used.
 Must be between 2 and the number of available candidate drives.
 
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
-
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> Get-IBMSVArrayRecommendation -MDiskGrp mdiskgrp0 -DriveClass 1 -DriveCount 12
-
 Returns recommended array layouts for a 12-drive distributed array in mdiskgrp0.
 
 .EXAMPLE
 PS> Get-IBMSVArrayRecommendation -MDiskGrp Pool1
-
 Returns recommendations using available drives.
 
 .INPUTS
@@ -46,14 +41,11 @@ None.
 
 .OUTPUTS
 System.Object[]
-
 Returns recommended array layouts.
-
 If no recommendations are available, an empty array is returned.
 
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
-- Returns an empty array if no recommendations are available or validation fails.
 
 .LINK
 https://www.ibm.com/docs/en/search/lsarrayrecommendation

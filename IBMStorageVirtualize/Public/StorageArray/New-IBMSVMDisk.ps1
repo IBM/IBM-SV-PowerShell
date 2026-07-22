@@ -1,20 +1,9 @@
 <#
 .SYNOPSIS
-Creates a new MDisk (Managed Disk) in an IBM Storage Virtualize system.
+Creates a new MDisk on an IBM Storage Virtualize system.
 
 .DESCRIPTION
-The New-IBMSVMDisk cmdlet creates a managed disk (MDisk) in the specified MDisk group.
-
-It supports creating:
-- A traditional array using explicitly specified drives (mkarray), or
-- A distributed array using either manually specified layout parameters or system recommendations (mkdistributedarray).
-
-When -UseRecommendation is specified, the cmdlet queries the system for an optimal array layout using lsarrayrecommendation and applies the first recommended configuration.
-
-The cmdlet is idempotent:
-- If a MDisk with the specified name already exists, the existing object is returned.
-
-Supports -WhatIf and -Confirm for safe execution.
+The New-IBMSVMDisk cmdlet creates a MDisk on an IBM Storage Virtualize system.
 
 .PARAMETER Name
 Specifies the name of the MDisk to create.
@@ -25,7 +14,6 @@ Specifies the MDisk group in which to create the MDisk.
 .PARAMETER Level
 Specifies the RAID level for the array.
 Valid values: raid0, raid1, raid5, raid6, raid10.
-
 Required when:
 - Creating a traditional array, or
 - Creating a distributed array without -UseRecommendation.
@@ -41,12 +29,10 @@ Valid values: latency, redundancy.
 .PARAMETER Encrypt
 Specifies whether the array should be encrypted.
 Valid values: yes, no.
-
 Defaults to yes when encryption is enabled and supported by all nodes in the I/O group.
 
 .PARAMETER Drive
 Specifies one or more drives to include in a traditional array.
-
 Required for traditional array creation.
 
 .PARAMETER SpareGoal
@@ -54,18 +40,14 @@ Specifies the number of spare drives for a traditional array.
 
 .PARAMETER DriveClass
 Specifies the drive class for distributed array creation.
-
 Used for:
 - Manual distributed array creation, or
 - As input for recommendation queries.
-
 Default value: 0.
 
 .PARAMETER DriveCount
 Specifies the number of drives in a distributed array.
-
 Required when not using -UseRecommendation.
-
 When using -UseRecommendation:
 - If not specified, all available candidate drives are used.
 - If specified, the value is validated and used as input for the recommendation query.
@@ -86,48 +68,37 @@ Specifies whether to allow the use of superior drives in a distributed array.
 
 .PARAMETER UseRecommendation
 Specifies that the system automatically selects optimal distributed array parameters using lsarrayrecommendation.
-
 When specified:
 - Parameters -Level, -StripeWidth, -RebuildAreas, -RebuildAreasGoal, and -AllowSuperior cannot be used.
 
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
-
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> New-IBMSVMDisk -Name MDisk1 -MDiskGrp MDG1 -Level raid1 -Drive @("1A","1B","1C") -SpareGoal 1
-
 Creates a RAID 1 MDisk in MDisk Group MDG1 using specified drives with one spare.
 
 .EXAMPLE
 PS> New-IBMSVMDisk -Name DistMDisk1 -MDiskGrp MDG2 -Level raid5 -DriveClass 0 -DriveCount 6 -StripeWidth 4 -AllowSuperior
-
 Creates a distributed RAID 5 MDisk with manual configuration.
 
 .EXAMPLE
 PS> New-IBMSVMDisk -Name RecmDistMDisk1 -MDiskGrp MDG3 -UseRecommendation
-
 Creates a distributed RAID 5 MDisk named `RecmDistMDisk1` in MDisk Group `MDG3` using system-recommended parameters based on available candidate drives.
 
 .INPUTS
 System.String
-
 You can pipe name, mdiskgrp and level to this cmdlet.
 
 .OUTPUTS
 System.Object
-
-Returns the MDisk object.
-
-If the MDisk already exists, the existing object is returned.
+Returns the created MDisk, or the existing MDisk if it already exists.
 
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
 - Performs an existence check before creation.
-- Performs validation of parameter combinations before execution.
-- Supports both traditional and distributed arrays.
-- Fully supports -WhatIf and -Confirm.
+- Supports -WhatIf and -Confirm.
 
 .LINK
 https://www.ibm.com/docs/en/search/mkdistributedarray

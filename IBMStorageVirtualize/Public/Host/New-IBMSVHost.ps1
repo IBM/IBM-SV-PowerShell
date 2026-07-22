@@ -5,13 +5,6 @@ Creates a new host on an IBM Storage Virtualize system.
 .DESCRIPTION
 The New-IBMSVHost cmdlet creates a host on an IBM Storage Virtualize system.
 
-It maps to the mkhost command.
-
-The cmdlet is idempotent:
-- If the specified host already exists, the existing host object is returned.
-
-Supports -WhatIf and -Confirm for safe execution.
-
 .PARAMETER Name
 Specifies the name of the host to create.
 
@@ -26,7 +19,6 @@ Specifies the iSCSI name(s) for the host.
 
 .PARAMETER Nqn
 Specifies the NVMe Qualified Name(s) for the host.
-
 Requires -Protocol to be an NVMe type.
 
 .PARAMETER FDMIName
@@ -48,12 +40,10 @@ Specifies the site for the host.
 
 .PARAMETER HostCluster
 Specifies the host cluster.
-
 Mutually exclusive with -OwnershipGroup.
 
 .PARAMETER OwnershipGroup
 Specifies the ownership group.
-
 Mutually exclusive with -HostCluster.
 
 .PARAMETER Portset
@@ -64,7 +54,6 @@ Specifies the partition for the host.
 
 .PARAMETER Location
 Specifies the location of the host.
-
 Requires -Partition.
 
 .PARAMETER AutoStorageDiscovery
@@ -73,64 +62,50 @@ Valid values: yes, no.
 
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
-
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> New-IBMSVHost -Name Host1 -FCWWPN "210100E08B251EE6:210100E08B251EE7" -Site site1 -HostCluster hostcluster0
 PS> New-IBMSVHost -Name Host1 -FCWWPN $FCWWPN1,$FCWWPN2 -Site site1 -HostCluster hostcluster0
-
 Creates a FC host.
 
 .EXAMPLE
 PS> New-IBMSVHost -Name Host2 -IscsiName "iqn.localhost.hostid.7f000001,iqn.localhost.hostid.7f000002" -Protocol iscsi
 PS> New-IBMSVHost -Name Host2 -IscsiName $IQN1,$IQN2 -Protocol iscsi
-
 Creates an iSCSI host.
 
 .EXAMPLE
 PS> New-IBMSVHost -Name NVMeHost1 -Nqn "nqn.2014-08.org.nvmexpress:uuid:616d5c90-4747-11e6-9fbe-0894ef2ffff" -Protocol fcnvme -Portset portset0
-
 Creates a fcnvme host.
 
 .EXAMPLE
 PS> New-IBMSVHost -Name NVMeHost1 -Nqn "nqn.2014-08.org.nvmexpress:uuid:616d5c90-4747-11e6-9fbe-0894ef2ffff" -Protocol tcpnvme -Portset portset0
-
 Creates a tcpnvme host.
 
 .EXAMPLE
 PS> New-IBMSVHost -Name NVMeHost1 -Nqn "nqn.2014-08.org.nvmexpress:uuid:616d5c90-4747-11e6-9fbe-0894ef2ffff" -Protocol rdmanvme -Portset portset0
-
 Creates a rdmanvme host.
 
 .EXAMPLE
 PS> New-IBMSVHost -Name Host1 -FCWWPN "210100E08B251EE6:210100E08B251EE7" -Protocol 'sas'
-
 Creates a SAS host.
 
 .EXAMPLE
 PS> New-IBMSVHost -Name Host1 -FDMIName "78A1BC1-1" -Protocol 'fcscsi'
-
 Creates a FDMI host.
 
 .INPUTS
 System.String
-
 You can pipe objects with a Name property to this cmdlet.
 
 .OUTPUTS
 System.Object
-
-Returns the created host object.
-
-If the host already exists, the existing object is returned.
+Returns the created host object, or the existing host object if it already exists.
 
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
 - Performs an existence check before creation.
-- Performs validation of parameter combinations before execution.
-- Only one initiator type parameter is allowed.
-- Fully supports -WhatIf and -Confirm.
+- Supports -WhatIf and -Confirm.
 
 .LINK
 https://www.ibm.com/docs/en/search/mkhost
@@ -274,7 +249,7 @@ function New-IBMSVHost {
                     $value = $PSBoundParameters[$field]
                     if ($null -ne $value -and $value -ne '') {
                         if ($value -is [System.Management.Automation.SwitchParameter]) {
-                            $opts[$field.ToLower()] = if ($value.IsPresent) { $true } else { $false }
+                            $opts[$field.ToLower()] = $value.IsPresent
                         }
                         else {
                             $opts[$field.ToLower()] = $value

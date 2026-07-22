@@ -7,7 +7,7 @@
                 return [pscustomobject]@{ name='pwsh_dns0'; IP_address='1.1.1.11' }
             }
             if ($Cmd -eq 'rmdnsserver') {
-                return [pscustomobject]@{ message = 'DNS server removed successfully' }
+                return $null
             }
         } -ModuleName IBMStorageVirtualize
     }

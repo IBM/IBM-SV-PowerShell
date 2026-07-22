@@ -5,14 +5,6 @@ Creates a new DNS server on an IBM Storage Virtualize system.
 .DESCRIPTION
 The New-IBMSVDNSServer cmdlet creates a DNS server entry.
 
-It maps to the mkdnsserver command.
-
-The cmdlet is idempotent:
-- If a DNS server with the specified IP address or name already exists, the existing entry is returned.
-- If the IP or name exists with conflicting values, the operation fails.
-
-Supports -WhatIf and -Confirm for safe execution.
-
 .PARAMETER IpAddress
 Specifies the IP address of the DNS server.
 
@@ -22,39 +14,33 @@ Specifies the name of the DNS server.
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
 
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> New-IBMSVDNSServer -IpAddress 8.8.8.8
-
 Creates a DNS server entry.
 
 .EXAMPLE
 PS> New-IBMSVDNSServer -IpAddress 8.8.4.4 -Name dns-secondary
-
 Creates a DNS server with a name.
 
 .EXAMPLE
 PS> New-IBMSVDNSServer -IpAddress 8.8.8.8 -WhatIf
-
 Shows what would happen without creating the DNS server.
 
 .INPUTS
 System.String
-
 You can pipe objects with an IpAddress property to this cmdlet.
 
 .OUTPUTS
 System.Object
-
 Returns the created DNS server object.
-
 If the DNS server already exists, the existing object is returned.
 
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
 - Performs an existence check before creation.
-- Fully supports -WhatIf and -Confirm.
+- Supports -WhatIf and -Confirm.
 
 .LINK
 https://www.ibm.com/docs/en/search/mkdnsserver

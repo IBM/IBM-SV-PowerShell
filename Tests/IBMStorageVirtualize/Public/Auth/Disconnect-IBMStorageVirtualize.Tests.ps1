@@ -48,7 +48,7 @@
             $result | Should -BeNullOrEmpty
         }
 
-        It "Should preserves primary designation when removing non-primary session" {
+        It "Should preserve primary designation when removing non-primary session" {
             InModuleScope IBMStorageVirtualize {
                 $script:sessions = @{
                     "1.1.1.11" = @{ Token="abc123"; Primary=$true }

@@ -26,7 +26,7 @@
                 return $null
             }
             if ($Cmd -eq 'chdnsserver') {
-                return [pscustomobject]@{ message = 'DNS server updated successfully' }
+                return $null
             }
         } -ModuleName IBMStorageVirtualize
 
@@ -52,7 +52,7 @@
                 return [pscustomobject]@{ name='pwsh_dns1'; IP_address='1.1.1.11' }
             }
             if ($Cmd -eq 'chdnsserver') {
-                return [pscustomobject]@{ message = 'DNS server updated successfully' }
+                return $null
             }
         } -ModuleName IBMStorageVirtualize
 
@@ -92,7 +92,7 @@
                 return $null
             }
             if ($Cmd -eq 'chdnsserver') {
-                return [pscustomobject]@{ message = 'DNS server updated successfully' }
+                return $null
             }
         } -ModuleName IBMStorageVirtualize
 
@@ -115,7 +115,7 @@
                 return [pscustomobject]@{ name='pwsh_dns0'; IP_address='1.1.1.11' }
             }
             if ($Cmd -eq 'chdnsserver') {
-                return [pscustomobject]@{ message = 'DNS server updated successfully' }
+                return $null
             }
         } -ModuleName IBMStorageVirtualize
 
@@ -134,7 +134,7 @@
                 return [pscustomobject]@{ name='pwsh_dns0'; IP_address='1.1.1.11' }
             }
             if ($Cmd -eq 'chdnsserver') {
-                return [pscustomobject]@{ message = 'DNS server updated successfully' }
+                return $null
             }
         } -ModuleName IBMStorageVirtualize
 
@@ -157,7 +157,7 @@
                 return [pscustomobject]@{ name='pwsh_dns0'; IP_address='1.1.1.11' }
             }
             if ($Cmd -eq 'chdnsserver') {
-                return [pscustomobject]@{ message = 'DNS server updated successfully' }
+                return $null
             }
         } -ModuleName IBMStorageVirtualize
 

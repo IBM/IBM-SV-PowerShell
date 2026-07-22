@@ -1,45 +1,31 @@
 <#
 .SYNOPSIS
-Removes an existing storage pool (MDisk Group) from an IBM Storage Virtualize system.
+Removes an existing storage pool from an IBM Storage Virtualize system.
 
 .DESCRIPTION
-The Remove-IBMSVPool cmdlet deletes a storage pool (MDisk Group) from the system.
-
-It maps to the rmmdiskgrp command.
-
-The cmdlet is idempotent:
-- If the pool does not exist, no action is performed.
-
-Supports -WhatIf and -Confirm for safe execution.
-Due to the destructive nature, confirmation is required by default.
+The Remove-IBMSVPool cmdlet deletes a storage pool from the system.
 
 .PARAMETER Name
 Specifies the name of the pool to remove.
 
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
-
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> Remove-IBMSVPool -Name Pool1
-
 Removes the specified pool.
-Prompts for confirmation before deletion.
-
-.EXAMPLE
-PS> Remove-IBMSVPool -Name Pool1 -Confirm:$false
-
-Removes the pool without prompting for confirmation.
 
 .EXAMPLE
 PS> Remove-IBMSVPool -Name Pool1 -WhatIf
-
 Shows what would happen if the pool were removed.
+
+.EXAMPLE
+PS> Remove-IBMSVPool -Name Pool1 -Confirm:$false
+Removes the pool without confirmation.
 
 .INPUTS
 System.String
-
 You can pipe objects with a Name property to this cmdlet.
 
 .OUTPUTS
@@ -48,8 +34,7 @@ None.
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
 - This is a destructive operation and cannot be undone.
-- If the pool does not exist, the operation completes silently.
-- Fully supports -WhatIf and -Confirm.
+- Supports -WhatIf and -Confirm.
 
 .LINK
 https://www.ibm.com/docs/en/search/rmmdiskgrp

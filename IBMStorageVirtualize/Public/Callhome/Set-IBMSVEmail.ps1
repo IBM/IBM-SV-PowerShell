@@ -7,16 +7,11 @@ The Set-IBMSVEmail cmdlet configures email settings and contact information used
 for system notifications, alerts, and callhome functionality on an IBM Storage
 Virtualize system.
 
-It maps to the chemail command.
-
-Supports -WhatIf and -Confirm for safe execution.
-
 .PARAMETER ReplyEmail
 Specifies the reply-to email address.
 
 .PARAMETER FromEmail
 Specifies the sender email address.
-
 Cannot be used with -RemoveFromEmail.
 
 .PARAMETER RemoveFromEmail
@@ -66,8 +61,7 @@ Specifies the country code.
 
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
-
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> Set-IBMSVEmail -ReplyEmail "admin@example.com" -FromEmail "noreply@example.com"
@@ -86,8 +80,7 @@ None.
 
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
-- Performs validation of parameter combinations before execution.
-- Fully supports -WhatIf and -Confirm.
+- Supports -WhatIf and -Confirm.
 
 .LINK
 https://www.ibm.com/docs/en/search/chemail

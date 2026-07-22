@@ -313,7 +313,7 @@ Returns capacity-related values in bytes when supported.
 .PARAMETER Cluster
 Specifies the FlashSystem cluster to connect to.
 
-If not provided, the primary session is used.
+If not provided, the primary cluster is used.
 
 .EXAMPLE
 PS> $functionName
@@ -426,36 +426,30 @@ function Get-IBMSVInfo {
     .PARAMETER Cluster
     Specifies the FlashSystem cluster to connect to.
 
-    If not provided, the primary session is used.
+    If not provided, the primary cluster is used.
 
     .EXAMPLE
     PS> Get-IBMSVInfo
-
     Returns all supported object types.
 
     .EXAMPLE
     PS> Get-IBMSVInfo -Subset Pool
-
     Returns all storage pools.
 
     .EXAMPLE
     PS> Get-IBMSVInfo -Subset Volume -FilterValue "status=online"
-
     Returns filtered volume objects.
 
     .EXAMPLE
     PS> Get-IBMSVInfo -Subset Host -ObjectName host1
-
     Returns a specific host.
 
     .EXAMPLE
     PS> Get-IBMSVInfo -Subset Volume,Host
-
     Returns multiple object types in a hashtable.
 
     .EXAMPLE
     PS> Get-IBMSVInfo -Subset Volume -Detailed
-
     Returns detailed volume information.
 
     .INPUTS
@@ -471,7 +465,6 @@ function Get-IBMSVInfo {
     .NOTES
     - Requires an authenticated session via Connect-IBMStorageVirtualize.
     - Intended for bulk retrieval scenarios.
-    - For single object types, prefer specific cmdlets such as Get-IBMSVVolume or Get-IBMSVHost.
     - Filter support depends on backend capabilities.
     #>
     [CmdletBinding()]
