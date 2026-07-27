@@ -66,7 +66,7 @@ $cred = Get-Credential
 Connect-IBMStorageVirtualize -Cluster "1.1.1.1" -Credential $cred -Primary
 
 # Get system information
-Get-IBMSVInfo -ObjectType System
+Get-IBMSVInfo -Subset System
 
 # Create a new volume
 New-IBMSVVolume -Name "TestVol01" -Size 100 -Unit gb -Pool "Pool1"
@@ -190,10 +190,10 @@ Get-IBMSVSession -Primary
 Get-IBMSVSession -Cluster "1.1.1.2"
 
 # Use default cluster for operations
-Get-IBMSVInfo -ObjectType System
+Get-IBMSVInfo -Subset System
 
 # Use specific cluster for operations
-Get-IBMSVInfo -ObjectType System -Cluster "1.1.1.2"
+Get-IBMSVInfo -Subset System -Cluster "1.1.1.2"
 
 # Disconnect specific cluster
 Disconnect-IBMStorageVirtualize -Cluster "1.1.1.2"
