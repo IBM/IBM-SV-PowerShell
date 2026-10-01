@@ -135,7 +135,6 @@ function Restore-IBMSVFromSnapshot {
             }
 
             $result = Invoke-IBMSVRestRequest -Cluster $Cluster -Cmd "restorefromsnapshot" -CmdOpts $opts
-
             if ($result -and $result.PSObject.Properties.Name -contains "err") {
                 throw (Resolve-Error -ErrorInput $result -Category InvalidOperation)
             }

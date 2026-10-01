@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-10-01
+
+### Added
+
+#### Cmdlets
+- Drive Management: `Set-IBMSVDrive`
+- Clone Management: `New-IBMSVClone`, `Set-IBMSVClone`
+- Quorum and File Download Utility: `New-IBMSVQuorum`, `Get-IBMSVFile`
+
+#### Solution Scripts
+- Policy-Based Replication (PBR): `Solutions/PBR/IBMSV_PBR.ps1` end-to-end automation script and sample inventory
+- Policy-Based High Availability (PBHA): `Solutions/PBHA/IBMSV_PBHA.ps1` end-to-end automation script and sample inventory
+
+### Fixed
+
+- Truststore Management: Fixed certificate transfer issue in `New-IBMSVTruststore` when using secret-based authentication (`-SecretName`).
+
 ## [1.1.0] - 2026-07-22
 
 ### Added

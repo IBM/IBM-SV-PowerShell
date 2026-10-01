@@ -120,7 +120,6 @@ function Set-IBMSVIP {
         if ($NewIPAddress -and $NewIPAddress -eq $IPAddress) { $NewIPAddress = $null }
 
         $allIPs = Invoke-IBMSVRestRequest -Cluster $Cluster -Cmd "lsip"
-
         if ($allIPs -and $allIPs.PSObject.Properties.Name -contains "err") {
             throw (Resolve-Error -ErrorInput $allIPs -Category InvalidOperation)
         }

@@ -121,7 +121,6 @@ function New-IBMSVIP {
 
             # --- Existence check ---
             $allIPs = Invoke-IBMSVRestRequest -Cluster $Cluster -Cmd "lsip"
-
             if ($allIPs -and $allIPs.PSObject.Properties.Name -contains "err") {
                 throw (Resolve-Error -ErrorInput $allIPs -Category InvalidOperation)
             }

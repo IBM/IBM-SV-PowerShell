@@ -1,0 +1,48 @@
+{
+  "Clusters": [
+    {
+      "IP": "<primary_cluster_ip>",
+      "Username": "<primary_cluster_username>",
+      "Password": "<primary_cluster_password>"
+    },
+    {
+      "IP": "<secondary_cluster_ip>",
+      "Username": "<secondary_cluster_username>",
+      "Password": "<secondary_cluster_password>"
+    }
+  ],
+  "TruststoreName": "<truststore_name>",
+  "Partnership": {
+    "Type": "<FC/IP>",
+    "LinkBandwidthMbits": "<linkbandwidth>",
+
+    "PortsetName": "<portset_name>",
+    "IPParameters": [
+      {
+        "IP": "<ip_addr_for_primary_cluster_portset>",
+        "NodeName": "<node1_primary_ip>",
+        "PortID": "<port_id_primary_ip>",
+        "Vlan": "<vlan_for_primary_ip>",
+        "SubnetPrefix": "<subnet_prefix_for_primary_ip>"
+      },
+      {
+        "IP": "<ip_addr_for_secondary_cluster_portset>",
+        "NodeName": "<node1_secondary_ip>",
+        "PortID": "<port_id_secondary_ip>",
+        "Vlan": "<vlan_for_secondary_ip>",
+        "SubnetPrefix": "<subnet_prefix_for_secondary_ip>"
+      }
+    ]
+  },
+  "Pools": [
+    "<site1_pool_name>",
+    "<site2_pool_name>"
+  ],
+  "ReplicationPolicyName": "<dr_policy_name>",
+  "RpoAlertSeconds": "<rpo_alert>",
+  "PartitionName": "<dr_partition_name>",
+  "VolumeGroupName": "<volume_group_name>",
+  "Volumes": [
+    "<volume_name>"
+  ]
+}

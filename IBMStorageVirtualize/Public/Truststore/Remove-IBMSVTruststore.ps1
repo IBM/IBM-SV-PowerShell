@@ -66,14 +66,19 @@ function Remove-IBMSVTruststore {
     )
 
     process {
+        if (-not $Cluster) {
+            $Cluster = $script:primarysession
+        }
+
         $clustersToUpdate = @()
         if (-not $RemoteCluster) {
             if ($RemoteTruststoreName) {
                 throw (Resolve-Error -ErrorInput "-RemoteTruststoreName is not applicable when -RemoteCluster is not specified." -Category InvalidArgument)
             }
             $clustersToUpdate += [pscustomobject]@{
-                Cluster = $Cluster
-                Name    = $Name
+                Cluster     = $Cluster
+                Name        = $Name
+                Description = "cluster '$Cluster'"
             }
         }
         else {
@@ -81,33 +86,35 @@ function Remove-IBMSVTruststore {
                 $RemoteTruststoreName = $Name
             }
             $clustersToUpdate += [pscustomobject]@{
-                Cluster = $Cluster
-                Name    = $Name
+                Cluster     = $Cluster
+                Name        = $Name
+                Description = "primary cluster '$Cluster'"
             }
             $clustersToUpdate += [pscustomobject]@{
-                Cluster = $RemoteCluster
-                Name    = $RemoteTruststoreName
+                Cluster     = $RemoteCluster
+                Name        = $RemoteTruststoreName
+                Description = "secondary cluster '$RemoteCluster'"
             }
         }
 
         # --- Remove Truststore ---
-        foreach ($t in $clustersToUpdate) {
+        foreach ($target in $clustersToUpdate) {
+            if ($PSCmdlet.ShouldProcess("Truststore '$($target.name)'", "Remove")) {
 
-            if ($PSCmdlet.ShouldProcess("Truststore '$($t.name)'", "Remove")) {
                 # --- Existence check ---
-                $existing = Invoke-IBMSVRestRequest -Cluster $t.Cluster -Cmd "lstruststore" -CmdArgs $t.Name
+                $existing = Invoke-IBMSVRestRequest -Cluster $target.Cluster -Cmd "lstruststore" -CmdArgs $target.Name
                 if ($existing.err) {
                     throw (Resolve-Error -ErrorInput $existing -Category InvalidOperation)
                 }
                 if (-not $existing) {
-                    Write-IBMSVLog -Level INFO -Message "Truststore '$($t.Name)' does not exist on cluster '$($t.Cluster)'."
+                    Write-IBMSVLog -Level INFO -Message "Truststore '$($target.Name)' does not exist on $($target.Description)."
                 }
                 else {
-                    $result = Invoke-IBMSVRestRequest -Cluster $t.Cluster -Cmd "rmtruststore" -CmdArgs $t.Name
+                    $result = Invoke-IBMSVRestRequest -Cluster $target.Cluster -Cmd "rmtruststore" -CmdArgs $target.Name
                     if ($result.err) {
                         throw (Resolve-Error -ErrorInput $result -Category InvalidOperation)
                     }
-                    Write-IBMSVLog -Level INFO -Message "Truststore '$($t.Name)' removed successfully from cluster '$($t.Cluster)'."
+                    Write-IBMSVLog -Level INFO -Message "Truststore '$($target.Name)' removed successfully from $($target.Description)."
                 }
             }
         }

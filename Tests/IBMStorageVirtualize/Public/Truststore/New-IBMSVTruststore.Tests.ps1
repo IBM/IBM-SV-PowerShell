@@ -429,3 +429,135 @@
         { New-IBMSVTruststore -Name "pwsh_ts0" -RemoteCluster "10.10.10.20" -Cluster "10.10.10.10" } | Should -Throw "Authentication failed while transferring the certificate via SCP."
     }
 }
+
+Describe "Copy-IBMSVCertificateViaSCP Auth Tests" {
+    BeforeAll {
+        $script:pwsh_cred = New-Object System.Management.Automation.PSCredential (
+            "pwsh_user",
+            (ConvertTo-SecureString "pwsh_pass" -AsPlainText -Force)
+        )
+
+        Mock New-IBMSVSshSession {
+            return [SSH.SshSession]::new()
+        } -ModuleName IBMStorageVirtualize
+
+        Mock New-SSHShellStream {
+            $stream = [pscustomobject]@{}
+            $stream | Add-Member -MemberType ScriptMethod -Name WriteLine -Value {}
+            $stream | Add-Member -MemberType ScriptMethod -Name Read -Value {
+                return "system_rootcacertificate_slot_3.pem 100%"
+            }
+            $stream | Add-Member -MemberType ScriptMethod -Name Dispose -Value {}
+            $stream | Add-Member -MemberType NoteProperty -Name DataAvailable -Value $true
+            return $stream
+        } -ModuleName IBMStorageVirtualize
+
+        Mock Remove-SSHSession {} -ModuleName IBMStorageVirtualize
+    }
+
+    Context "Credential path - AllowCredentialCaching" {
+        It "Should resolve credential from session.Credential and succeed" {
+            InModuleScope IBMStorageVirtualize -Parameters @{ cred = $script:pwsh_cred } {
+                $script:sessions = @{
+                    "10.10.10.10" = @{ Cluster = "10.10.10.10"; Credential = $cred; SecretName = $null; VaultName = $null }
+                    "10.10.10.20" = @{ Cluster = "10.10.10.20"; Credential = $cred; SecretName = $null; VaultName = $null }
+                }
+            }
+
+            $result = InModuleScope IBMStorageVirtualize {
+                Copy-IBMSVCertificateViaSCP -SourceCluster "10.10.10.10" -TargetCluster "10.10.10.20" `
+                    -CertFile "system_rootcacertificate_slot_3.pem" -TargetCertFile "system_rootcacertificate_slot_3_20250101_120000.pem"
+            }
+
+            $result.Success | Should -Be $true
+            Assert-MockCalled New-IBMSVSshSession -Times 1 -ModuleName IBMStorageVirtualize
+        }
+    }
+
+    Context "Credential path - SecretName (default vault)" {
+        It "Should call Get-Secret and succeed when SecretName is set without VaultName" {
+            InModuleScope IBMStorageVirtualize -Parameters @{ cred = $script:pwsh_cred } {
+                $script:sessions = @{
+                    "10.10.10.10" = @{ Cluster = "10.10.10.10"; Credential = $null; SecretName = "my-secret"; VaultName = $null }
+                    "10.10.10.20" = @{ Cluster = "10.10.10.20"; Credential = $null; SecretName = "my-secret"; VaultName = $null }
+                }
+            }
+
+            Mock Get-Secret { return $script:pwsh_cred } -ModuleName IBMStorageVirtualize
+
+            $result = InModuleScope IBMStorageVirtualize {
+                Copy-IBMSVCertificateViaSCP -SourceCluster "10.10.10.10" -TargetCluster "10.10.10.20" `
+                    -CertFile "system_rootcacertificate_slot_3.pem" -TargetCertFile "system_rootcacertificate_slot_3_20250101_120000.pem"
+            }
+
+            $result.Success | Should -Be $true
+            Assert-MockCalled Get-Secret -Times 1 -ModuleName IBMStorageVirtualize `
+                -ParameterFilter { $Name -eq "my-secret" -and -not $Vault }
+        }
+    }
+
+    Context "Credential path - SecretName with VaultName" {
+        It "Should call Get-Secret with vault when VaultName is set" {
+            InModuleScope IBMStorageVirtualize -Parameters @{ cred = $script:pwsh_cred } {
+                $script:sessions = @{
+                    "10.10.10.10" = @{ Cluster = "10.10.10.10"; Credential = $null; SecretName = "my-secret"; VaultName = "MyVault" }
+                    "10.10.10.20" = @{ Cluster = "10.10.10.20"; Credential = $null; SecretName = "my-secret"; VaultName = "MyVault" }
+                }
+            }
+
+            Mock Get-Secret { return $script:pwsh_cred } -ModuleName IBMStorageVirtualize
+
+            $result = InModuleScope IBMStorageVirtualize {
+                Copy-IBMSVCertificateViaSCP -SourceCluster "10.10.10.10" -TargetCluster "10.10.10.20" `
+                    -CertFile "system_rootcacertificate_slot_3.pem" -TargetCertFile "system_rootcacertificate_slot_3_20250101_120000.pem"
+            }
+
+            $result.Success | Should -Be $true
+            Assert-MockCalled Get-Secret -Times 1 -ModuleName IBMStorageVirtualize `
+                -ParameterFilter { $Name -eq "my-secret" -and $Vault -eq "MyVault" }
+        }
+    }
+
+    Context "Credential path - Get-Secret failure" {
+        It "Should return Success=false with a clear error message when Get-Secret throws" {
+            InModuleScope IBMStorageVirtualize {
+                $script:sessions = @{
+                    "10.10.10.10" = @{ Cluster = "10.10.10.10"; Credential = $null; SecretName = "missing-secret"; VaultName = $null }
+                    "10.10.10.20" = @{ Cluster = "10.10.10.20"; Credential = $null; SecretName = "missing-secret"; VaultName = $null }
+                }
+            }
+
+            Mock Get-Secret { throw "Secret not found" } -ModuleName IBMStorageVirtualize
+
+            $result = InModuleScope IBMStorageVirtualize {
+                Copy-IBMSVCertificateViaSCP -SourceCluster "10.10.10.10" -TargetCluster "10.10.10.20" `
+                    -CertFile "system_rootcacertificate_slot_3.pem" -TargetCertFile "system_rootcacertificate_slot_3_20250101_120000.pem"
+            }
+
+            $result.Success | Should -Be $false
+            $result.Error   | Should -BeLike "Failed to retrieve secret 'missing-secret'*"
+            Assert-MockCalled New-IBMSVSshSession -Times 0 -ModuleName IBMStorageVirtualize
+        }
+    }
+
+    Context "Credential path - no credential cached, no SecretName" {
+        It "Should return Success=false with a clear error message instead of attempting SCP" {
+            InModuleScope IBMStorageVirtualize {
+                $script:sessions = @{
+                    "10.10.10.10" = @{ Cluster = "10.10.10.10"; Credential = $null; SecretName = $null; VaultName = $null }
+                    "10.10.10.20" = @{ Cluster = "10.10.10.20"; Credential = $null; SecretName = $null; VaultName = $null }
+                }
+            }
+
+            $result = InModuleScope IBMStorageVirtualize {
+                Copy-IBMSVCertificateViaSCP -SourceCluster "10.10.10.10" -TargetCluster "10.10.10.20" `
+                    -CertFile "system_rootcacertificate_slot_3.pem" -TargetCertFile "system_rootcacertificate_slot_3_20250101_120000.pem"
+            }
+
+            $result.Success | Should -Be $false
+            $result.Error   | Should -BeLike "*No credential available*"
+
+            Assert-MockCalled New-IBMSVSshSession -Times 0 -ModuleName IBMStorageVirtualize
+        }
+    }
+}
