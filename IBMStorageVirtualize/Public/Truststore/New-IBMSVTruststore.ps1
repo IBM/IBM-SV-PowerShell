@@ -96,6 +96,8 @@ function New-IBMSVTruststore {
                 Name               = $Name
                 RemoteCluster      = $RemoteCluster
                 RemoteBuildVersion = $remoteBuildVersion
+                Description        = "primary cluster '$Cluster'"
+                RemoteDescription  = "secondary cluster '$RemoteCluster'"
             }
             [pscustomobject]@{
                 Cluster            = $RemoteCluster
@@ -103,6 +105,8 @@ function New-IBMSVTruststore {
                 Name               = $RemoteTruststoreName
                 RemoteCluster      = $Cluster
                 RemoteBuildVersion = $buildVersion
+                Description        = "secondary cluster '$RemoteCluster'"
+                RemoteDescription  = "primary cluster '$Cluster'"
             }
         )
         $result = @()
@@ -113,7 +117,7 @@ function New-IBMSVTruststore {
                     if ($truststoreData.PSObject.Properties.Name -contains "err") {
                         throw (Resolve-Error -ErrorInput $truststoreData -Category InvalidOperation)
                     }
-                    Write-IBMSVLog -Level INFO -Message "Truststore '$($system.Name)' already exists. Returning existing object."
+                    Write-IBMSVLog -Level INFO -Message "Truststore '$($system.Name)' already exists on $($system.Description). Returning existing object."
                     $result += $truststoreData
                 }
                 else {
@@ -151,28 +155,29 @@ function New-IBMSVTruststore {
                         }
                     }
 
-                    Write-IBMSVLog -Level DEBUG -Message "Exporting certificate $CertificateFile using $ExportCommand"
+                    Write-IBMSVLog -Level DEBUG -Message "Exporting certificate $CertificateFile using $ExportCommand from $($system.RemoteDescription)."
                     $exportResult = Invoke-IBMSVRestRequest -Cluster $system.RemoteCluster -Cmd $ExportCommand -CmdOpts $ExportCmdOpts
                     if ($exportResult.PSObject.Properties.Name -contains "err") {
                         throw (Resolve-Error -ErrorInput $exportResult -Category InvalidOperation)
                     }
-                    Write-IBMSVLog -Level INFO -Message "Certificate '$CertificateFile' exported."
+                    Write-IBMSVLog -Level INFO -Message "Certificate '$CertificateFile' exported successfully from $($system.RemoteDescription)."
 
                     # --- Exchange Certificate ---
                     $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-                    $targetCertificateFile = "{0}_{1}_{2}" -f `
+                    $targetCertificateFile = "{0}_{1}_{2}" -f (
                         [System.IO.Path]::GetFileNameWithoutExtension($CertificateFile),
                         ($system.RemoteCluster -replace '\.', '_'),
                         $timestamp
+                    )
                     $targetCertificateFile += ".pem"
-                    Write-IBMSVLog -Level DEBUG -Message "Transferring certificate '$CertificateFile' as '$targetCertificateFile'."
+                    Write-IBMSVLog -Level DEBUG -Message "Transferring certificate '$CertificateFile' as '$targetCertificateFile' from $($system.RemoteDescription) to $($system.Description)."
 
                     $scpResult = Copy-IBMSVCertificateViaSCP -SourceCluster $system.RemoteCluster -TargetCluster $system.Cluster -CertFile $CertificateFile -TargetCertFile $targetCertificateFile
                     if (-not $scpResult.Success) {
                         throw (Resolve-Error -ErrorInput $scpResult.Error -Category InvalidOperation)
                     }
 
-                    Write-IBMSVLog -Level INFO -Message "Certificate '$CertificateFile' transferred successfully as '$targetCertificateFile'."
+                    Write-IBMSVLog -Level INFO -Message "Certificate '$CertificateFile' transferred successfully as '$targetCertificateFile' from $($system.RemoteDescription) to $($system.Description)."
 
                     # --- Create Truststore ---
                     $opts = @{
@@ -197,12 +202,12 @@ function New-IBMSVTruststore {
                         }
                     }
 
-                    Write-IBMSVLog -Level DEBUG -Message "Creating truststore '$($system.Name)'"
+                    Write-IBMSVLog -Level DEBUG -Message "Creating truststore '$($system.Name)' on $($system.Description)."
                     $createResult = Invoke-IBMSVRestRequest -Cluster $system.Cluster -Cmd "mktruststore" -CmdOpts $opts
                     if ($createResult.PSObject.Properties.Name -contains "err") {
                         throw (Resolve-Error -ErrorInput $createResult -Category InvalidOperation)
                     }
-                    Write-IBMSVLog -Level INFO -Message "Truststore [$($createResult.id)] '$($system.Name)' created successfully."
+                    Write-IBMSVLog -Level INFO -Message "Truststore [$($createResult.id)] '$($system.Name)' created successfully on $($system.Description)."
 
                     $current = Invoke-IBMSVRestRequest -Cluster $system.Cluster -Cmd "lstruststore" -CmdArgs ($system.Name)
                     if ($current.PSObject.Properties.Name -contains "err") {
@@ -226,9 +231,36 @@ function Copy-IBMSVCertificateViaSCP {
 
     )
     $sshSession = $null
+    $cred = $null
 
     $sourceSession = $script:sessions[$SourceCluster]
     $targetSession = $script:sessions[$TargetCluster]
+
+    if ($targetSession.SecretName) {
+        try {
+            $cred = if ($targetSession.VaultName) {
+                Get-Secret -Name $targetSession.SecretName -Vault $targetSession.VaultName -ErrorAction Stop
+            }
+            else {
+                Get-Secret -Name $targetSession.SecretName -ErrorAction Stop
+            }
+        }
+        catch {
+            return [pscustomobject]@{
+                Success = $false
+                Error   = "Failed to retrieve secret '$($targetSession.SecretName)'. $_"
+            }
+        }
+    }
+    elseif ($targetSession.Credential) {
+        $cred = $targetSession.Credential
+    }
+    else {
+        return [pscustomobject]@{
+            Success = $false
+            Error   = "No credential available for '$TargetCluster'. Reconnect with -AllowCredentialCaching or -SecretName."
+        }
+    }
 
     $sshSession = New-IBMSVSshSession -Cluster $sourceSession.Cluster
     if ($sshSession.PSObject.Properties.Name -contains "err") {
@@ -237,10 +269,11 @@ function Copy-IBMSVCertificateViaSCP {
             Error   = $sshSession.err
         }
     }
-    $scpCommand = "scp -O -o stricthostkeychecking=no -o UserKnownHostsFile=/dev/null /dumps/$CertFile $($targetSession.Credential.UserName)@$($TargetCluster):/tmp/$TargetCertFile"
+
     try {
         $stream = New-SSHShellStream -SSHSession $sshSession
 
+        $scpCommand = "scp -O -o stricthostkeychecking=no -o UserKnownHostsFile=/dev/null /dumps/$CertFile $($cred.UserName)@$($TargetCluster):/tmp/$TargetCertFile"
         $stream.WriteLine($scpCommand)
         Start-Sleep -Milliseconds 500
 
@@ -265,7 +298,7 @@ function Copy-IBMSVCertificateViaSCP {
                         $stream.WriteLine(
                             [System.Net.NetworkCredential]::new(
                                 '',
-                                $targetSession.Credential.Password
+                                $cred.Password
                             ).Password
                         )
 

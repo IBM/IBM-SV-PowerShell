@@ -142,6 +142,9 @@ function New-IBMSVSnapshot {
                     volumegroup = $VolumeGroup
                 }
                 $existing = Invoke-IBMSVRestRequest -Cluster $Cluster -Cmd "lsvolumegroupsnapshot" -CmdOpts $checkOpts
+                if ($existing.PSObject.Properties.Name -contains "err") {
+                    throw (Resolve-Error -ErrorInput $existing -Category InvalidOperation)
+                }
             }
             else {
                 $checkOpts = @{

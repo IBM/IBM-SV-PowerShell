@@ -118,6 +118,10 @@ function Set-IBMSVTruststore {
     )
 
     process {
+        if (-not $Cluster) {
+            $Cluster = $script:primarysession
+        }
+
         # --- Parameter-level validation ---
         if ($Export -and ($Vasa -or $RestAPI -or $IpSec -or $Email -or $SNMP -or $Syslog)) {
             throw (Resolve-Error -ErrorInput "-Export is mutually exclusive with other parameters." -Category InvalidArgument)
@@ -133,13 +137,13 @@ function Set-IBMSVTruststore {
                 throw (Resolve-Error -ErrorInput $primaryData -Category InvalidOperation)
             }
             if (-not $primaryData) {
-                throw (Resolve-Error -ErrorInput "Truststore '$Name' does not exist on local cluster." -Category ObjectNotFound)
+                throw (Resolve-Error -ErrorInput "Truststore '$Name' does not exist on cluster '$Cluster'." -Category ObjectNotFound)
             }
 
             $clustersToUpdate += [pscustomobject]@{
                 Cluster     = $Cluster
                 Data        = $primaryData
-                Description = "Local cluster"
+                Description = "cluster '$Cluster'"
             }
         }
         else {
@@ -148,7 +152,7 @@ function Set-IBMSVTruststore {
                 throw (Resolve-Error -ErrorInput $primaryData -Category InvalidOperation)
             }
             if (-not $primaryData) {
-                throw (Resolve-Error -ErrorInput "Truststore '$Name' does not exist on local cluster." -Category ObjectNotFound)
+                throw (Resolve-Error -ErrorInput "Truststore '$Name' does not exist on primary cluster '$Cluster'." -Category ObjectNotFound)
             }
 
             if (-not $RemoteTruststoreName) {
@@ -159,32 +163,30 @@ function Set-IBMSVTruststore {
                 throw (Resolve-Error -ErrorInput $secondaryData -Category InvalidOperation)
             }
             if (-not $secondaryData) {
-                throw (Resolve-Error -ErrorInput "Truststore '$RemoteTruststoreName' does not exist on remote cluster." -Category ObjectNotFound)
+                throw (Resolve-Error -ErrorInput "Truststore '$RemoteTruststoreName' does not exist on secondary cluster '$RemoteCluster'." -Category ObjectNotFound)
             }
 
             $clustersToUpdate += [pscustomobject]@{
                 Cluster     = $Cluster
                 Data        = $primaryData
-                Description = "Local cluster"
+                Description = "primary cluster '$Cluster'"
             }
             $clustersToUpdate += [pscustomobject]@{
                 Cluster     = $RemoteCluster
                 Data        = $secondaryData
-                Description = "Remote cluster"
+                Description = "secondary cluster '$RemoteCluster'"
             }
         }
 
         # --- Update Truststore ---
         foreach ($target in $clustersToUpdate) {
-            $targetDescription = if ($target.Cluster) { "$($target.Description) ($($target.Cluster))" } else { $target.Description }
-
             if ($PSCmdlet.ShouldProcess("Truststore '$($target.Data.name)'", "Modify")) {
                 if ($Export) {
                     $result = Invoke-IBMSVRestRequest -Cluster $target.Cluster -Cmd "chtruststore" -CmdOpts @{ export = $true } -CmdArgs $target.Data.name
                     if ($result.err) {
                         throw (Resolve-Error -ErrorInput $result -Category InvalidOperation)
                     }
-                    Write-IBMSVLog -Level INFO -Message "Truststore '$($target.Data.name)' exported successfully from $targetDescription."
+                    Write-IBMSVLog -Level INFO -Message "Truststore '$($target.Data.name)' exported successfully from $($target.Description)."
                     continue
                 }
 
@@ -215,7 +217,7 @@ function Set-IBMSVTruststore {
                 }
 
                 if ($props.Count -eq 0) {
-                    Write-IBMSVLog -Level INFO -Message "No changes required for Truststore '$($target.Data.name)'."
+                    Write-IBMSVLog -Level INFO -Message "No changes required for Truststore '$($target.Data.name)' on $($target.Description)."
                 }
                 else {
                     # --- Apply changes ---
@@ -223,7 +225,7 @@ function Set-IBMSVTruststore {
                     if ($result.err) {
                         throw (Resolve-Error -ErrorInput $result -Category InvalidOperation)
                     }
-                    Write-IBMSVLog -Level INFO -Message "Truststore '$($target.Data.name)' updated successfully on $targetDescription."
+                    Write-IBMSVLog -Level INFO -Message "Truststore '$($target.Data.name)' updated successfully on $($target.Description)."
                 }
             }
         }

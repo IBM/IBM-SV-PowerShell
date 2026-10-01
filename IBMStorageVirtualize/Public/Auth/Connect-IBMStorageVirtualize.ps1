@@ -208,9 +208,7 @@ function Connect-IBMStorageVirtualize {
 
         try {
             $result = Set-CertPolicy -ValidateCerts $ValidateCerts.IsPresent
-            if ($result.err) {
-                throw (Resolve-Error -ErrorInput $result -Category InvalidOperation)
-            }
+            if ($result.err) { throw (Resolve-Error -ErrorInput $result -Category InvalidOperation) }
             $response = Invoke-RestMethod -Uri "$BaseUrl/auth" -Method Post -Headers @{
                 "Content-Type"    = "application/json"
                 "X-Auth-Username" = $Credential.UserName

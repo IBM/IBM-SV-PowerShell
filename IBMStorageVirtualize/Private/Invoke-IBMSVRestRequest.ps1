@@ -10,7 +10,9 @@ function Invoke-IBMSVRestRequest {
 
         [string]$Cluster,
 
-        [int]$Timeout = 60
+        [int]$Timeout = 60,
+
+        [string]$OutFile
     )
 
     $session = if ($Cluster) {
@@ -56,7 +58,19 @@ function Invoke-IBMSVRestRequest {
 
             $result = Set-CertPolicy -ValidateCerts $session.ValidateCerts
             if ($result.err) { return $result }
-            $response = Invoke-RestMethod -Uri $url -Method 'Post' -Headers $headers -Body $payloadJson -TimeoutSec $Timeout
+
+            $restParams = @{
+                Uri        = $url
+                Method     = 'Post'
+                Headers    = $headers
+                Body       = $payloadJson
+                TimeoutSec = $Timeout
+            }
+            if ($OutFile) {
+                $restParams['OutFile'] = $OutFile
+            }
+
+            $response = Invoke-RestMethod @restParams
 
             if ($Cmd -eq "lssystem" -and $response.code_level) {
                 $script:sessions[$session.Cluster].SVCVersion = [version]($response.code_level.Split()[0])

@@ -165,7 +165,7 @@ None.
 
 .NOTES
 - Requires an authenticated session via Connect-IBMStorageVirtualize.
-- Multiple parameter update is non-atomic"
+- Multiple parameter update is non-atomic.
 - Supports -WhatIf and -Confirm.
 
 .LINK

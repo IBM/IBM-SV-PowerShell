@@ -39,7 +39,7 @@
             }
         } -ModuleName IBMStorageVirtualize
 
-        { Set-IBMSVTruststore -Name "trust_nonexistent" -RestAPI "on" } | Should -Throw "Truststore 'trust_nonexistent' does not exist on local cluster."
+        { Set-IBMSVTruststore -Name "trust_nonexistent" -RestAPI "on" } | Should -Throw "Truststore 'trust_nonexistent' does not exist on cluster*."
     }
 
     It "Should throw error when truststore doesn't exist on remote cluster" {
@@ -56,7 +56,7 @@
             }
         } -ModuleName IBMStorageVirtualize
 
-        { Set-IBMSVTruststore -Name "pwsh_ts0" -RemoteTruststoreName "pwsh_ts1" -RemoteCluster "10.10.10.20" -Vasa "on" } | Should -Throw "Truststore 'pwsh_ts1' does not exist on remote cluster."
+        { Set-IBMSVTruststore -Name "pwsh_ts0" -RemoteTruststoreName "pwsh_ts1" -RemoteCluster "10.10.10.20" -Vasa "on" } | Should -Throw "Truststore 'pwsh_ts1' does not exist on secondary cluster '10.10.10.20'."
     }
 
     It "Should not call API to modify truststore when -WhatIf is specified" {

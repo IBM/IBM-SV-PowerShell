@@ -289,7 +289,8 @@ function Set-IBMSVPartition {
             if ($Location) {
                 if (-not ($currentMigrationStatus -eq 'in_progress' -and $Location -eq $data.desired_location_system_name)) {
                     $props['location'] = $Location
-                } else {
+                }
+                else {
                     Write-IBMSVLog -Level INFO -Message "A partition migration is already in progress with target cluster '$Location'."
                     return
                 }
